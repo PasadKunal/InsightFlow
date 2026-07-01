@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-62%20passing-2ea44f">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-72%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
 </p>
@@ -44,7 +44,10 @@ insightflow/
 │   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR
 ├── uplift/        X-Learner + SHAP CATE, segment ranking        (Phase 4)
 ├── reporting/     Automated reports · narrative summaries · PDF (Phase 5)
-├── api/           FastAPI: experiment CRUD, results, reports    (Phase 3)
+├── api/           FastAPI service: experiment CRUD, ingest, results
+│   ├── models.py            SQLAlchemy ORM: Experiment · Assignment · Observation
+│   ├── service.py           bridges stored rows -> the core engine
+│   └── main.py              FastAPI routes (Swagger docs at /docs)
 ├── frontend/      React + Vite dashboard                        (Phase 5)
 ├── validation/    500-experiment simulation harness            (Phase 6)
 └── tests/         Unit + property tests for every stat function
@@ -67,8 +70,34 @@ source ifvenv/bin/activate          # Windows: ifvenv\Scripts\activate
 pip install -e ".[dev]"
 
 python examples/quickstart.py        # runs a full experiment end-to-end
-pytest                               # 39 tests, incl. empirical power validation
+pytest                               # 72 tests, incl. empirical power validation
 ```
+
+### Running the API
+
+```bash
+pip install -e ".[api]"
+uvicorn insightflow.api.main:app --reload      # -> http://127.0.0.1:8000/docs
+```
+
+The service defaults to **SQLite** (zero setup). To develop against **PostgreSQL**:
+
+```bash
+docker compose -f infra/docker-compose.yml up -d
+export DATABASE_URL="postgresql+psycopg://insightflow:insightflow@localhost:5432/insightflow"
+uvicorn insightflow.api.main:app --reload
+```
+
+**The experiment lifecycle over HTTP** — create → assign → observe → read results:
+
+| Method & path | Purpose |
+|---|---|
+| `POST /experiments` | Create an experiment (auto power analysis) |
+| `GET /experiments` · `GET /experiments/{id}` | List / fetch |
+| `PATCH /experiments/{id}/status` | Start, stop, or complete |
+| `POST /experiments/{id}/assign` | Deterministically assign a user to an arm |
+| `POST /experiments/{id}/observe` · `.../observe/bulk` | Ingest metric values |
+| `GET /experiments/{id}/results` | Full analysis: **SRM + frequentist + Bayesian + a ship/hold call** |
 
 ### A 20-second taste
 
@@ -116,7 +145,7 @@ their own rich result objects with built-in ship / keep-running recommendations.
 
 - [x] **Phase 1 — Core stats:** frequentist tests, power analysis, randomization, SRM, tests
 - [x] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
-- [ ] **Phase 3 — Experiment service:** PostgreSQL + FastAPI CRUD & results API
+- [x] **Phase 3 — Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
 - [ ] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking
 - [ ] **Phase 5 — Reporting + dashboard:** automated reports, narrative summaries, elegant React UI
 - [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI

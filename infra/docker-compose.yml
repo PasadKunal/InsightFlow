@@ -1,0 +1,43 @@
+# Local infrastructure for InsightFlow.
+#
+# The API itself defaults to SQLite and needs nothing here to run. Bring this up
+# when you want to develop against real PostgreSQL (the production target):
+#
+#     docker compose -f infra/docker-compose.yml up -d
+#     export DATABASE_URL="postgresql+psycopg://insightflow:insightflow@localhost:5432/insightflow"
+#     uvicorn insightflow.api.main:app --reload
+#
+# Redis is included now because Phase 6 uses it for sub-2s dashboard caching; it's
+# harmless to have running early.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: insightflow-postgres
+    environment:
+      POSTGRES_USER: insightflow
+      POSTGRES_PASSWORD: insightflow
+      POSTGRES_DB: insightflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - insightflow_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U insightflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: insightflow-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  insightflow_pgdata:
