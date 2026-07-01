@@ -1,0 +1,128 @@
+<h1 align="center">InsightFlow</h1>
+<p align="center">
+  <strong>Production-grade A/B testing &amp; statistical experimentation platform.</strong><br>
+  Design experiments, randomize users, run rigorous statistics, and ship decisions — not just p-values.
+</p>
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-39%20passing-2ea44f">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
+  <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
+</p>
+
+---
+
+## Why this exists
+
+Every product team at Google, Meta, Airbnb, and Stripe runs experiments daily — but
+most teams still reach for a lone `t.test()` in a notebook with no infrastructure
+around it. That approach silently ignores the things that actually decide whether an
+experiment can be trusted: **was it powered? was the split clean? did we peek? did we
+test twenty metrics and celebrate the one that hit `p < 0.05`?**
+
+InsightFlow is the infrastructure that answers all of that. It handles the full
+experiment lifecycle — **design → randomization → analysis → sequential stopping →
+multiple-testing correction → automated reporting** — as deployable software, not a
+one-off script.
+
+> This is not a statistics notebook. It's an experimentation platform.
+
+---
+
+## Architecture
+
+```
+insightflow/
+├── core/          Statistical engine — framework-independent, 100% unit-tested
+│   ├── frequentist.py       t-test · z-test · chi-squared · Mann-Whitney (+ effect sizes)
+│   ├── power_analysis.py    sample-size & power calculators
+│   ├── randomization.py     deterministic + stratified assignment
+│   ├── srm_detector.py      Sample Ratio Mismatch guard rail
+│   ├── bayesian.py          Beta-Binomial posteriors            (Phase 2)
+│   ├── sequential.py        SPRT early stopping                 (Phase 2)
+│   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR (Phase 2)
+├── uplift/        X-Learner + SHAP CATE, segment ranking        (Phase 4)
+├── reporting/     Automated reports · narrative summaries · PDF (Phase 5)
+├── api/           FastAPI: experiment CRUD, results, reports    (Phase 3)
+├── frontend/      React + Vite dashboard                        (Phase 5)
+├── validation/    500-experiment simulation harness            (Phase 6)
+└── tests/         Unit + property tests for every stat function
+```
+
+The **`core/` engine is deliberately isolated** from the web and database layers:
+numbers go in, trustworthy answers come out. That separation is what lets us validate
+it against SciPy and against Monte-Carlo simulation, independent of any server.
+
+---
+
+## Quickstart
+
+```bash
+git clone https://github.com/PasadKunal/InsightFlow.git
+cd InsightFlow
+
+python3 -m venv ifvenv
+source ifvenv/bin/activate          # Windows: ifvenv\Scripts\activate
+pip install -e ".[dev]"
+
+python examples/quickstart.py        # runs a full experiment end-to-end
+pytest                               # 39 tests, incl. empirical power validation
+```
+
+### A 20-second taste
+
+```python
+from insightflow.core import sample_size_for_proportion, proportion_ztest, detect_srm
+
+# 1. Design: how many users to detect a 10% relative lift on a 10% baseline?
+plan = sample_size_for_proportion(baseline_rate=0.10, minimum_detectable_effect=0.10)
+print(plan)          # Need 14,751 per arm (29,502 total) ...
+
+# 2. Guard: is the observed split healthy, or did the pipeline break?
+print(detect_srm({"control": 14_752, "treatment": 14_750}))   # No SRM ✔
+
+# 3. Analyze: did treatment actually move the rate?
+result = proportion_ztest(1450, 14_752, 1680, 14_750)
+print(result.summary())      # SIGNIFICANT (p=...) | relative lift=... | 95% CI [...]
+print(result.significant)    # True
+```
+
+---
+
+## What's implemented (Phase 1 ✅)
+
+| Capability | Module | Notes |
+|---|---|---|
+| Two-sample **t-test** (Welch + Student) | `core/frequentist.py` | Cohen's d + CI on the mean difference |
+| **Two-proportion z-test** | `core/frequentist.py` | relative lift + CI on rate difference |
+| **Chi-squared** independence test | `core/frequentist.py` | Cramér's V; agrees with the z-test on 2×2 |
+| **Mann-Whitney U** | `core/frequentist.py` | rank-biserial effect size for skewed metrics |
+| **Sample-size & power** calculators | `core/power_analysis.py` | inverses of each other; empirically validated |
+| **Deterministic + stratified** randomization | `core/randomization.py` | stable SHA-256 hashing, per-stratum balance |
+| **SRM detection** | `core/srm_detector.py` | strict `p < 0.001` chi-squared guard rail |
+
+Every function returns a self-describing `TestResult` — estimate, effect size,
+confidence interval, and a plain-English verdict — because a p-value with no context
+is how experiments get misread.
+
+---
+
+## Roadmap
+
+- [x] **Phase 1 — Core stats:** frequentist tests, power analysis, randomization, SRM, tests
+- [ ] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
+- [ ] **Phase 3 — Experiment service:** PostgreSQL + FastAPI CRUD & results API
+- [ ] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking
+- [ ] **Phase 5 — Reporting + dashboard:** automated reports, narrative summaries, elegant React UI
+- [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
+
+---
+
+## Tech stack
+
+**Statistics** SciPy · Statsmodels · NumPy  ·  **ML** XGBoost · SHAP  ·  **Backend** FastAPI · PostgreSQL · Redis  ·  **Frontend** React · Vite · Tailwind  ·  **Infra** Docker · GitHub Actions
+
+---
+
+<p align="center"><sub>Built by Kunal Pasad · MIT licensed</sub></p>

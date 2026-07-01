@@ -1,0 +1,35 @@
+[project]
+name = "insightflow"
+version = "0.1.0"
+description = "Production-grade A/B testing and statistical experimentation platform"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Kunal Pasad" }]
+keywords = ["ab-testing", "experimentation", "statistics", "causal-inference", "data-science"]
+
+# Core statistical engine dependencies (Phase 1-2).
+# Web, ML, and reporting extras are added in their own phases to keep installs lean.
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "statsmodels>=0.14",
+    "pandas>=2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["insightflow*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
