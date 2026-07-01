@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-82%20passing-2ea44f">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-99%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
 </p>
@@ -47,8 +47,13 @@ insightflow/
 │   ├── shap_analysis.py     SHAP attributions: which features drive the effect
 │   ├── segment_analyzer.py  responder quantiles + segment ranking
 │   └── synthetic_validator.py  PEHE / correlation vs a known ground-truth effect
-├── reporting/     Automated reports · narrative summaries · PDF (Phase 5)
-├── api/           FastAPI service: experiment CRUD, ingest, results
+├── reporting/     Decision-ready reports
+│   ├── report_generator.py  ship/no-ship/extend report from core results
+│   ├── insight_generator.py free pluggable LLM summaries (Groq · Ollama · template)
+│   ├── visualizations.py    Plotly charts (CI · posteriors · SPRT · uplift)
+│   ├── pdf_exporter.py      one-page stakeholder PDF (ReportLab)
+│   └── scheduler.py         APScheduler weekly digests
+├── api/           FastAPI service: experiment CRUD, ingest, results, reports
 │   ├── models.py            SQLAlchemy ORM: Experiment · Assignment · Observation
 │   ├── service.py           bridges stored rows -> the core engine
 │   └── main.py              FastAPI routes (Swagger docs at /docs)
@@ -104,6 +109,14 @@ uvicorn insightflow.api.main:app --reload
 | `POST /experiments/{id}/assign` | Deterministically assign a user to an arm |
 | `POST /experiments/{id}/observe` · `.../observe/bulk` | Ingest metric values |
 | `GET /experiments/{id}/results` | Full analysis: **SRM + frequentist + Bayesian + a ship/hold call** |
+| `GET /experiments/{id}/report` | Decision report + plain-English narrative summary |
+| `GET /experiments/{id}/report.pdf` | One-page stakeholder PDF |
+| `GET /experiments/{id}/charts` | Plotly figures (JSON) for the dashboard |
+
+**Free LLM summaries.** The narrative uses a pluggable backend, no paid API required:
+`template` (default — deterministic, no key, always works), `groq` (free Llama 3.3 70B —
+set `INSIGHTFLOW_LLM=groq` + `GROQ_API_KEY`), or `ollama` (100% local). Any failure
+falls back to the template, so a report always gets a summary.
 
 ### A 20-second taste
 
@@ -157,7 +170,8 @@ their own rich result objects with built-in ship / keep-running recommendations.
 - [x] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
 - [x] **Phase 3 — Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
 - [x] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
-- [ ] **Phase 5 — Reporting + dashboard:** automated reports, narrative summaries, elegant React UI
+- [x] **Phase 5a — Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
+- [ ] **Phase 5b — Dashboard:** elegant React + Vite + Tailwind UI
 - [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
 
 ---

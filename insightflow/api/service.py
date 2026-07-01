@@ -7,6 +7,8 @@ an analysis. The web layer never does statistics itself — it delegates to ``co
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -192,13 +194,23 @@ def _values_by_variant(db: Session, experiment_id: str) -> dict[str, list[float]
     return out
 
 
-def analyze(db: Session, experiment: models.Experiment) -> schemas.ResultsOut:
-    """Turn stored rows into a full statistical read-out for the experiment.
+@dataclass
+class _AnalysisBundle:
+    """Raw core result objects for an experiment — shared by results, reports & charts."""
 
-    Runs, in order: an SRM guardrail on the assignment split, the frequentist test(s)
-    appropriate to the metric type, and (for proportions) the Bayesian view — then
-    distills everything into a single ship / hold recommendation. Raises ValueError
-    if either arm has no data yet.
+    srm: object
+    frequentist: list          # list of core TestResult objects (primary first)
+    bayesian: object | None    # core BayesianResult or None
+    n_control: int
+    n_treatment: int
+
+
+def _run_analysis(db: Session, experiment: models.Experiment) -> _AnalysisBundle:
+    """The single analysis path: stored rows -> core statistical result objects.
+
+    Every consumer (the JSON results endpoint, the report, the charts) goes through
+    here, so the numbers can never disagree between surfaces. Raises ValueError if
+    either arm has no data yet.
     """
     values = _values_by_variant(db, experiment.id)
     control_vals = values.get("control", [])
@@ -207,13 +219,40 @@ def analyze(db: Session, experiment: models.Experiment) -> schemas.ResultsOut:
     if n_c == 0 or n_t == 0:
         raise ValueError("Both arms need at least one observation before analysis.")
 
-    # 1. Guardrail — is the assignment split what we designed for?
+    # Guardrail — is the assignment split what we designed for?
     counts = _assignment_counts(db, experiment.id)
     tf = experiment.treatment_fraction
     srm = detect_srm(
         {"control": counts["control"], "treatment": counts["treatment"]},
         expected_ratio={"control": 1 - tf, "treatment": tf},
     )
+
+    frequentist: list = []
+    bayesian = None
+    if experiment.metric_type == models.MetricType.PROPORTION:
+        conv_c, conv_t = int(sum(control_vals)), int(sum(treatment_vals))
+        frequentist = [
+            proportion_ztest(conv_c, n_c, conv_t, n_t, alpha=experiment.alpha),
+            chi_squared_test(conv_c, n_c, conv_t, n_t, alpha=experiment.alpha),
+        ]
+        bayesian = beta_binomial_test(conv_c, n_c, conv_t, n_t)
+    else:
+        frequentist = [
+            two_sample_ttest(control_vals, treatment_vals, alpha=experiment.alpha),
+            mann_whitney_u(control_vals, treatment_vals, alpha=experiment.alpha),
+        ]
+
+    return _AnalysisBundle(
+        srm=srm, frequentist=frequentist, bayesian=bayesian, n_control=n_c, n_treatment=n_t
+    )
+
+
+def analyze(db: Session, experiment: models.Experiment) -> schemas.ResultsOut:
+    """Turn stored rows into a full statistical read-out (SRM + tests + Bayesian + verdict)."""
+    bundle = _run_analysis(db, experiment)
+    srm = bundle.srm
+    primary = bundle.frequentist[0]
+
     srm_out = schemas.SRMOut(
         mismatch_detected=srm.mismatch_detected,
         p_value=srm.p_value,
@@ -221,49 +260,80 @@ def analyze(db: Session, experiment: models.Experiment) -> schemas.ResultsOut:
         expected=srm.expected,
         message=srm.summary(),
     )
-
-    # 2. Frequentist test(s), chosen by metric type.
-    frequentist: list[schemas.FrequentistOut] = []
-    primary = None
-    if experiment.metric_type == models.MetricType.PROPORTION:
-        conv_c, conv_t = int(sum(control_vals)), int(sum(treatment_vals))
-        ztest = proportion_ztest(conv_c, n_c, conv_t, n_t, alpha=experiment.alpha)
-        chi = chi_squared_test(conv_c, n_c, conv_t, n_t, alpha=experiment.alpha)
-        primary = ztest
-        for res in (ztest, chi):
-            frequentist.append(_to_frequentist_out(res))
-    else:
-        ttest = two_sample_ttest(control_vals, treatment_vals, alpha=experiment.alpha)
-        mwu = mann_whitney_u(control_vals, treatment_vals, alpha=experiment.alpha)
-        primary = ttest
-        for res in (ttest, mwu):
-            frequentist.append(_to_frequentist_out(res))
-
-    # 3. Bayesian view — only meaningful for conversion-style metrics.
     bayesian_out = None
-    if experiment.metric_type == models.MetricType.PROPORTION:
-        conv_c, conv_t = int(sum(control_vals)), int(sum(treatment_vals))
-        bayes = beta_binomial_test(conv_c, n_c, conv_t, n_t)
+    if bundle.bayesian is not None:
         bayesian_out = schemas.BayesianOut(
-            prob_treatment_best=bayes.prob_treatment_best,
-            expected_relative_uplift=bayes.expected_relative_uplift,
-            expected_loss=bayes.expected_loss,
-            recommendation=bayes.recommendation,
+            prob_treatment_best=bundle.bayesian.prob_treatment_best,
+            expected_relative_uplift=bundle.bayesian.expected_relative_uplift,
+            expected_loss=bundle.bayesian.expected_loss,
+            recommendation=bundle.bayesian.recommendation,
         )
-
-    recommendation = _recommend(srm.mismatch_detected, primary)
 
     return schemas.ResultsOut(
         experiment_id=experiment.id,
         metric_type=experiment.metric_type,
         status=experiment.status,
-        n_control=n_c,
-        n_treatment=n_t,
+        n_control=bundle.n_control,
+        n_treatment=bundle.n_treatment,
         srm=srm_out,
-        frequentist=frequentist,
+        frequentist=[_to_frequentist_out(t) for t in bundle.frequentist],
         bayesian=bayesian_out,
-        recommendation=recommendation,
+        recommendation=_recommend(srm.mismatch_detected, primary),
     )
+
+
+def build_report(db: Session, experiment: models.Experiment):
+    """Build a full ExperimentReport (with a natural-language narrative) for an experiment.
+
+    Reporting deps are imported lazily so the base API still runs without them.
+    """
+    from insightflow.reporting import generate_insight, generate_report  # lazy import
+
+    bundle = _run_analysis(db, experiment)
+    report = generate_report(
+        name=experiment.name,
+        metric_type=experiment.metric_type.value,
+        status=experiment.status.value,
+        frequentist=bundle.frequentist,
+        srm=bundle.srm,
+        bayesian=bundle.bayesian,
+        required_sample_size_per_arm=experiment.required_sample_size_per_arm,
+    )
+    generate_insight(report)  # attaches report.narrative (free template by default)
+    return report
+
+
+def build_charts(db: Session, experiment: models.Experiment) -> dict:
+    """Build Plotly figures for an experiment, returned as JSON-ready dicts."""
+    import json
+
+    from insightflow.reporting import visualizations as viz  # lazy import
+
+    bundle = _run_analysis(db, experiment)
+    primary = bundle.frequentist[0]
+    charts: dict[str, dict] = {}
+
+    if experiment.metric_type == models.MetricType.PROPORTION:
+        charts["conversion_rate"] = json.loads(
+            viz.conversion_bar(
+                primary.extra["rate_control"], primary.extra["rate_treatment"]
+            ).to_json()
+        )
+        if bundle.bayesian is not None:
+            b = bundle.bayesian
+            charts["posteriors"] = json.loads(
+                viz.posterior_plot(
+                    b.control.alpha, b.control.beta, b.treatment.alpha, b.treatment.beta
+                ).to_json()
+            )
+    else:
+        ci = primary.confidence_interval
+        charts["effect_ci"] = json.loads(
+            viz.confidence_interval_plot(
+                primary.extra["mean_difference"], ci.lower, ci.upper, label="mean diff"
+            ).to_json()
+        )
+    return charts
 
 
 def _to_frequentist_out(res) -> schemas.FrequentistOut:

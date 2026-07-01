@@ -156,3 +156,44 @@ def test_results_needs_data(client):
     exp = _make_experiment(client)
     resp = client.get(f"/experiments/{exp['id']}/results")
     assert resp.status_code == 400  # no observations yet
+
+
+# ── reporting endpoints (Phase 5) ────────────────────────────────────────────
+def _seed_winning_experiment(client):
+    exp = _make_experiment(client)
+    rng = np.random.default_rng(0)
+    observations = []
+    for i in range(6000):
+        uid = f"user-{i}"
+        variant = client.post(
+            f"/experiments/{exp['id']}/assign", json={"user_id": uid}
+        ).json()["variant"]
+        rate = 0.14 if variant == "treatment" else 0.10
+        observations.append({"user_id": uid, "value": float(rng.random() < rate)})
+    client.post(f"/experiments/{exp['id']}/observe/bulk", json={"observations": observations})
+    return exp
+
+
+def test_report_endpoint_returns_narrative(client):
+    exp = _seed_winning_experiment(client)
+    report = client.get(f"/experiments/{exp['id']}/report").json()
+    assert report["recommendation"] == "SHIP"
+    assert isinstance(report["narrative"], str) and len(report["narrative"]) > 40
+    assert report["bayesian"]["prob_treatment_best"] > 0.95
+
+
+def test_report_pdf_downloads(client):
+    exp = _seed_winning_experiment(client)
+    resp = client.get(f"/experiments/{exp['id']}/report.pdf")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "application/pdf"
+    assert resp.content[:5] == b"%PDF-"
+
+
+def test_charts_endpoint_returns_plotly_json(client):
+    exp = _seed_winning_experiment(client)
+    charts = client.get(f"/experiments/{exp['id']}/charts").json()
+    assert "conversion_rate" in charts
+    assert "posteriors" in charts
+    # A Plotly figure serializes to an object with "data" and "layout".
+    assert "data" in charts["conversion_rate"]
