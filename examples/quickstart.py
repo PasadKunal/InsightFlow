@@ -12,9 +12,12 @@ import numpy as np
 
 from insightflow.core import (
     assign_many,
+    benjamini_hochberg,
+    beta_binomial_test,
     detect_srm,
     mann_whitney_u,
     proportion_ztest,
+    run_sprt,
     sample_size_for_proportion,
     stratified_assign,
     summarize,
@@ -77,4 +80,25 @@ control_time = rng.lognormal(2, 1, summary.control)
 treatment_time = rng.lognormal(2.1, 1, summary.treatment)
 print("Session length (Mann-Whitney):", mann_whitney_u(control_time, treatment_time).summary())
 
-print("\nDone. This is the Phase 1 statistical core — fully tested, no web server needed.\n")
+# 6. BAYESIAN — the same experiment, but "probability treatment is best" ──────
+rule("6. Bayesian view: what a PM actually wants to hear")
+bayes = beta_binomial_test(control_conv, summary.control, treatment_conv, summary.treatment)
+print(bayes)
+
+# 7. SEQUENTIAL — stop early, validly, the moment evidence is decisive ────────
+rule("7. Sequential testing (SPRT): stop early without cheating")
+stream = list(rng.random(50_000) < 0.13)   # true rate 13% vs a 10% null
+sprt = run_sprt(stream, p0=0.10, p1=0.12, alpha=0.05, beta=0.20)
+print(sprt)
+print(f"   Reached a valid decision after only {sprt.stopped_at:,} users "
+      f"(a fixed test here would have needed ~{sample_size_for_proportion(0.10, 0.20).per_arm:,}).")
+
+# 8. MULTIPLE TESTING — don't get fooled by testing many metrics ─────────────
+rule("8. Multiple-testing correction: 6 metrics, which lifts are real?")
+metrics = ["revenue", "retention", "clicks", "signups", "shares", "latency"]
+raw_p = [0.002, 0.03, 0.04, 0.20, 0.55, 0.80]
+correction = benjamini_hochberg(raw_p, labels=metrics)
+print(correction)
+print("   (Raw p<0.05 would have flagged 3 metrics; after FDR control, fewer survive.)")
+
+print("\nDone. Phases 1-2: frequentist + Bayesian + sequential + multiple-testing — all tested.\n")

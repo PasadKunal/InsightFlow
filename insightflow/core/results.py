@@ -30,6 +30,28 @@ class ConfidenceInterval:
 
 
 @dataclass(frozen=True)
+class CredibleInterval:
+    """A Bayesian credible interval for a posterior quantity.
+
+    Looks like a confidence interval but means something stronger and more
+    intuitive: "given the data, there is a 95% probability the true value lies in
+    here." That is the statement stakeholders *think* a confidence interval makes —
+    and the one a Bayesian analysis actually delivers.
+    """
+
+    lower: float
+    upper: float
+    credibility: float = 0.95
+
+    def contains(self, value: float) -> bool:
+        return self.lower <= value <= self.upper
+
+    def __str__(self) -> str:
+        pct = int(round(self.credibility * 100))
+        return f"{pct}% credible interval [{self.lower:.4g}, {self.upper:.4g}]"
+
+
+@dataclass(frozen=True)
 class TestResult:
     """The outcome of a single frequentist hypothesis test.
 

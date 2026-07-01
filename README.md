@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-39%20passing-2ea44f">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-62%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
 </p>
@@ -39,9 +39,9 @@ insightflow/
 │   ├── power_analysis.py    sample-size & power calculators
 │   ├── randomization.py     deterministic + stratified assignment
 │   ├── srm_detector.py      Sample Ratio Mismatch guard rail
-│   ├── bayesian.py          Beta-Binomial posteriors            (Phase 2)
-│   ├── sequential.py        SPRT early stopping                 (Phase 2)
-│   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR (Phase 2)
+│   ├── bayesian.py          Beta-Binomial posteriors, P(best), expected loss
+│   ├── sequential.py        SPRT early stopping
+│   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR
 ├── uplift/        X-Learner + SHAP CATE, segment ranking        (Phase 4)
 ├── reporting/     Automated reports · narrative summaries · PDF (Phase 5)
 ├── api/           FastAPI: experiment CRUD, results, reports    (Phase 3)
@@ -90,7 +90,7 @@ print(result.significant)    # True
 
 ---
 
-## What's implemented (Phase 1 ✅)
+## What's implemented (Phases 1–2 ✅)
 
 | Capability | Module | Notes |
 |---|---|---|
@@ -101,17 +101,21 @@ print(result.significant)    # True
 | **Sample-size & power** calculators | `core/power_analysis.py` | inverses of each other; empirically validated |
 | **Deterministic + stratified** randomization | `core/randomization.py` | stable SHA-256 hashing, per-stratum balance |
 | **SRM detection** | `core/srm_detector.py` | strict `p < 0.001` chi-squared guard rail |
+| **Bayesian Beta-Binomial** | `core/bayesian.py` | P(treatment best), expected uplift, expected loss, credible intervals |
+| **SPRT sequential testing** | `core/sequential.py` | valid early stopping; streaming & batch APIs |
+| **Multiple-testing correction** | `core/multiple_testing.py` | Bonferroni (FWER) + Benjamini-Hochberg (FDR) |
 
-Every function returns a self-describing `TestResult` — estimate, effect size,
-confidence interval, and a plain-English verdict — because a p-value with no context
-is how experiments get misread.
+Every frequentist test returns a self-describing `TestResult` — estimate, effect
+size, confidence interval, and a plain-English verdict — because a p-value with no
+context is how experiments get misread. The Bayesian and sequential tests return
+their own rich result objects with built-in ship / keep-running recommendations.
 
 ---
 
 ## Roadmap
 
 - [x] **Phase 1 — Core stats:** frequentist tests, power analysis, randomization, SRM, tests
-- [ ] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
+- [x] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
 - [ ] **Phase 3 — Experiment service:** PostgreSQL + FastAPI CRUD & results API
 - [ ] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking
 - [ ] **Phase 5 — Reporting + dashboard:** automated reports, narrative summaries, elegant React UI
