@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-72%20passing-2ea44f">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-82%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
 </p>
@@ -42,7 +42,11 @@ insightflow/
 │   ├── bayesian.py          Beta-Binomial posteriors, P(best), expected loss
 │   ├── sequential.py        SPRT early stopping
 │   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR
-├── uplift/        X-Learner + SHAP CATE, segment ranking        (Phase 4)
+├── uplift/        Heterogeneous treatment effects (CATE)
+│   ├── x_learner.py         X-Learner meta-learner on gradient-boosted trees
+│   ├── shap_analysis.py     SHAP attributions: which features drive the effect
+│   ├── segment_analyzer.py  responder quantiles + segment ranking
+│   └── synthetic_validator.py  PEHE / correlation vs a known ground-truth effect
 ├── reporting/     Automated reports · narrative summaries · PDF (Phase 5)
 ├── api/           FastAPI service: experiment CRUD, ingest, results
 │   ├── models.py            SQLAlchemy ORM: Experiment · Assignment · Observation
@@ -70,8 +74,10 @@ source ifvenv/bin/activate          # Windows: ifvenv\Scripts\activate
 pip install -e ".[dev]"
 
 python examples/quickstart.py        # runs a full experiment end-to-end
-pytest                               # 72 tests, incl. empirical power validation
+pytest                               # 82 tests, incl. empirical power validation
 ```
+
+Want the ML layer too? `pip install -e ".[uplift]" && python examples/uplift_demo.py`
 
 ### Running the API
 
@@ -133,6 +139,10 @@ print(result.significant)    # True
 | **Bayesian Beta-Binomial** | `core/bayesian.py` | P(treatment best), expected uplift, expected loss, credible intervals |
 | **SPRT sequential testing** | `core/sequential.py` | valid early stopping; streaming & batch APIs |
 | **Multiple-testing correction** | `core/multiple_testing.py` | Bonferroni (FWER) + Benjamini-Hochberg (FDR) |
+| **X-Learner CATE** | `uplift/x_learner.py` | per-user treatment effect via gradient-boosted meta-learner |
+| **SHAP effect attribution** | `uplift/shap_analysis.py` | which features drive the treatment response |
+| **Segment ranking** | `uplift/segment_analyzer.py` | responder quintiles + known-segment ranking for targeting |
+| **Synthetic validation** | `uplift/synthetic_validator.py` | PEHE + correlation vs. known ground-truth effects |
 
 Every frequentist test returns a self-describing `TestResult` — estimate, effect
 size, confidence interval, and a plain-English verdict — because a p-value with no
@@ -146,7 +156,7 @@ their own rich result objects with built-in ship / keep-running recommendations.
 - [x] **Phase 1 — Core stats:** frequentist tests, power analysis, randomization, SRM, tests
 - [x] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
 - [x] **Phase 3 — Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
-- [ ] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking
+- [x] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
 - [ ] **Phase 5 — Reporting + dashboard:** automated reports, narrative summaries, elegant React UI
 - [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
 
