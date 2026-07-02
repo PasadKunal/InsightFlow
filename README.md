@@ -57,7 +57,7 @@ insightflow/
 │   ├── models.py            SQLAlchemy ORM: Experiment · Assignment · Observation
 │   ├── service.py           bridges stored rows -> the core engine
 │   └── main.py              FastAPI routes (Swagger docs at /docs)
-├── frontend/      React + Vite dashboard                        (Phase 5)
+├── frontend/      React + Vite + Tailwind dashboard (list · results · charts · PDF)
 ├── validation/    500-experiment simulation harness            (Phase 6)
 └── tests/         Unit + property tests for every stat function
 ```
@@ -118,6 +118,22 @@ uvicorn insightflow.api.main:app --reload
 set `INSIGHTFLOW_LLM=groq` + `GROQ_API_KEY`), or `ollama` (100% local). Any failure
 falls back to the template, so a report always gets a summary.
 
+### Running the dashboard
+
+A refined React + Vite + Tailwind UI: experiment list, a design-an-experiment modal,
+a one-click **⚡ Simulate data** button, and a results view with the recommendation
+banner, stat cards, Plotly charts, a narrative summary, and a PDF download.
+
+```bash
+uvicorn insightflow.api.main:app --reload    # backend on :8000
+
+cd frontend
+npm install
+npm run dev                                   # dashboard on http://localhost:5173
+```
+
+Create an experiment → click **Simulate data** → watch the full analysis appear.
+
 ### A 20-second taste
 
 ```python
@@ -171,7 +187,7 @@ their own rich result objects with built-in ship / keep-running recommendations.
 - [x] **Phase 3 — Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
 - [x] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
 - [x] **Phase 5a — Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
-- [ ] **Phase 5b — Dashboard:** elegant React + Vite + Tailwind UI
+- [x] **Phase 5b — Dashboard:** refined React + Vite + Tailwind UI (list, create, simulate, results, charts, narrative, PDF)
 - [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
 
 ---

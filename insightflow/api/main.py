@@ -144,6 +144,19 @@ def observe_bulk(
     return service.bulk_record(db, experiment, payload.observations)
 
 
+@app.post(
+    "/experiments/{experiment_id}/simulate",
+    response_model=schemas.IngestSummary,
+    tags=["data"],
+)
+def simulate(
+    experiment_id: str, payload: schemas.SimulateRequest, db: Session = Depends(get_db)
+):
+    """Generate synthetic traffic with a realistic treatment effect (demo convenience)."""
+    experiment = _require_experiment(experiment_id, db)
+    return service.simulate(db, experiment, payload)
+
+
 # ── Results ──────────────────────────────────────────────────────────────────
 @app.get(
     "/experiments/{experiment_id}/results",

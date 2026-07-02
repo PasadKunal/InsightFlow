@@ -190,6 +190,19 @@ def test_report_pdf_downloads(client):
     assert resp.content[:5] == b"%PDF-"
 
 
+def test_simulate_endpoint_creates_analyzable_experiment(client):
+    exp = _make_experiment(client)
+    summary = client.post(
+        f"/experiments/{exp['id']}/simulate",
+        json={"n_users": 8000, "control_rate": 0.10, "treatment_rate": 0.14},
+    ).json()
+    assert summary["ingested"] == 8000
+    assert summary["control"] > 0 and summary["treatment"] > 0
+
+    results = client.get(f"/experiments/{exp['id']}/results").json()
+    assert results["frequentist"][0]["significant"]  # a real +40% lift is detected
+
+
 def test_charts_endpoint_returns_plotly_json(client):
     exp = _seed_winning_experiment(client)
     charts = client.get(f"/experiments/{exp['id']}/charts").json()

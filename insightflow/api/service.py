@@ -7,8 +7,10 @@ an analysis. The web layer never does statistics itself — it delegates to ``co
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass
 
+import numpy as np
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -167,6 +169,36 @@ def bulk_record(
             control += 1
     db.commit()
     return schemas.IngestSummary(ingested=len(items), control=control, treatment=treatment)
+
+
+def simulate(
+    db: Session, experiment: models.Experiment, req: schemas.SimulateRequest
+) -> schemas.IngestSummary:
+    """Generate a batch of synthetic observations with a realistic treatment effect.
+
+    Users are assigned by the same deterministic hash as real traffic, then given an
+    outcome drawn from their arm's distribution. A random batch token keeps user IDs
+    unique across repeated simulations, so this can be called more than once.
+    """
+    rng = np.random.default_rng()
+    token = uuid.uuid4().hex[:8]
+    is_proportion = experiment.metric_type == models.MetricType.PROPORTION
+
+    items: list[schemas.ObserveRequest] = []
+    for i in range(req.n_users):
+        user_id = f"sim-{token}-{i}"
+        variant = deterministic_assign(
+            user_id, experiment_id=experiment.id, treatment_fraction=experiment.treatment_fraction
+        )
+        if is_proportion:
+            rate = req.treatment_rate if variant == "treatment" else req.control_rate
+            value = float(rng.random() < rate)
+        else:
+            mean = req.treatment_mean if variant == "treatment" else req.control_mean
+            value = float(rng.normal(mean, req.std))
+        items.append(schemas.ObserveRequest(user_id=user_id, value=value))
+
+    return bulk_record(db, experiment, items)
 
 
 # ── Analysis ─────────────────────────────────────────────────────────────────

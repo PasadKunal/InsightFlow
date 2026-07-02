@@ -81,6 +81,19 @@ class IngestSummary(BaseModel):
     treatment: int
 
 
+class SimulateRequest(BaseModel):
+    """Generate synthetic observations so an experiment is instantly demoable."""
+
+    n_users: int = Field(4000, gt=0, le=200_000)
+    # Proportion metrics:
+    control_rate: float = Field(0.10, ge=0, le=1)
+    treatment_rate: float = Field(0.12, ge=0, le=1)
+    # Continuous metrics:
+    control_mean: float = 50.0
+    treatment_mean: float = 52.0
+    std: float = Field(20.0, gt=0)
+
+
 # ── Results ──────────────────────────────────────────────────────────────────
 class SRMOut(BaseModel):
     mismatch_detected: bool
