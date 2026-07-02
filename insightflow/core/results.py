@@ -3,7 +3,7 @@
 Every test in InsightFlow returns a small, self-describing dataclass instead of a
 bare number. That way a caller (an API route, a report generator, or a human
 reading the REPL) always gets the *full picture*: the estimate, how uncertain we
-are about it, and a plain-English verdict — not just a p-value floating in space.
+are about it, and a plain-English verdict - not just a p-value floating in space.
 """
 
 from __future__ import annotations
@@ -35,7 +35,7 @@ class CredibleInterval:
 
     Looks like a confidence interval but means something stronger and more
     intuitive: "given the data, there is a 95% probability the true value lies in
-    here." That is the statement stakeholders *think* a confidence interval makes —
+    here." That is the statement stakeholders *think* a confidence interval makes -
     and the one a Bayesian analysis actually delivers.
     """
 
@@ -73,7 +73,7 @@ class TestResult:
     alpha:
         The significance threshold the verdict was made against.
     n_control, n_treatment:
-        Sample sizes that went into the test — essential context for trust.
+        Sample sizes that went into the test - essential context for trust.
     extra:
         Free-form bag for test-specific extras (means, rates, etc.).
     """

@@ -1,7 +1,7 @@
 """Tests for the uplift / CATE modeling layer.
 
 Because true individual treatment effects are unobservable in real data, we validate
-on *synthetic* data where we control the effect function exactly — then check that the
+on *synthetic* data where we control the effect function exactly - then check that the
 X-Learner recovers it, that segment ranking is monotone, and that SHAP surfaces the
 features we actually baked the effect into.
 """

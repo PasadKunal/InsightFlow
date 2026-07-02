@@ -1,12 +1,12 @@
 """Turning raw statistics into a decision-ready experiment report.
 
 The output of the engine is a pile of numbers: p-values, credible intervals, effect
-sizes, an SRM check. A stakeholder doesn't want the pile — they want **the decision**
+sizes, an SRM check. A stakeholder doesn't want the pile - they want **the decision**
 and the few facts that justify it. This module assembles everything into a single
 ``ExperimentReport``: one clear recommendation (SHIP / DO NOT SHIP / EXTEND / INVALID)
 plus the supporting evidence, ready to be rendered as text, JSON, a chart, or a PDF.
 
-It is deliberately decoupled from the web and ML layers — it consumes the plain result
+It is deliberately decoupled from the web and ML layers - it consumes the plain result
 objects from ``insightflow.core`` (and, optionally, a segment breakdown), so it can be
 unit-tested on its own with no database or model training in sight.
 """
@@ -67,9 +67,9 @@ class ExperimentReport:
         return d
 
     def text_summary(self) -> str:
-        """A clean plain-text report — used for the console, PDFs, and LLM prompts."""
+        """A clean plain-text report - used for the console, PDFs, and LLM prompts."""
         lines = [
-            f"EXPERIMENT REPORT — {self.name}",
+            f"EXPERIMENT REPORT - {self.name}",
             f"Status: {self.status} | Metric: {self.metric_type} | "
             f"n = {self.n_control:,} control / {self.n_treatment:,} treatment",
             "",
@@ -119,7 +119,7 @@ def _decide(
     if srm is not None and srm.mismatch_detected:
         return (
             INVALID,
-            "A Sample Ratio Mismatch was detected — the assignment split is broken, so "
+            "A Sample Ratio Mismatch was detected - the assignment split is broken, so "
             "these results cannot be trusted. Fix the pipeline and rerun.",
         )
 
@@ -141,7 +141,7 @@ def _decide(
         return (
             EXTEND,
             f"No significant difference yet, and the experiment is underpowered "
-            f"({n_per_arm_min:,} of {required_sample_size_per_arm:,} needed per arm) — "
+            f"({n_per_arm_min:,} of {required_sample_size_per_arm:,} needed per arm) - "
             f"keep collecting data.",
         )
     return (

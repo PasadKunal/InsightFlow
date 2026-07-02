@@ -1,7 +1,7 @@
 <h1 align="center">InsightFlow</h1>
 <p align="center">
   <strong>Production-grade A/B testing &amp; statistical experimentation platform.</strong><br>
-  Design experiments, randomize users, run rigorous statistics, and ship decisions — not just p-values.
+  Design experiments, randomize users, run rigorous statistics, and ship decisions, not just p-values.
 </p>
 
 <p align="center">
@@ -16,15 +16,15 @@
 
 ## Why this exists
 
-Every product team at Google, Meta, Airbnb, and Stripe runs experiments daily — but
+Every product team at Google, Meta, Airbnb, and Stripe runs experiments daily, yet
 most teams still reach for a lone `t.test()` in a notebook with no infrastructure
 around it. That approach silently ignores the things that actually decide whether an
 experiment can be trusted: **was it powered? was the split clean? did we peek? did we
 test twenty metrics and celebrate the one that hit `p < 0.05`?**
 
 InsightFlow is the infrastructure that answers all of that. It handles the full
-experiment lifecycle — **design → randomization → analysis → sequential stopping →
-multiple-testing correction → automated reporting** — as deployable software, not a
+experiment lifecycle (**design → randomization → analysis → sequential stopping →
+multiple-testing correction → automated reporting**) as deployable software, not a
 one-off script.
 
 > This is not a statistics notebook. It's an experimentation platform.
@@ -35,14 +35,14 @@ one-off script.
 
 ```
 insightflow/
-├── core/          Statistical engine — framework-independent, 100% unit-tested
+├── core/          Statistical engine (framework-independent, 100% unit-tested)
 │   ├── frequentist.py       t-test · z-test · chi-squared · Mann-Whitney (+ effect sizes)
 │   ├── power_analysis.py    sample-size & power calculators
 │   ├── randomization.py     deterministic + stratified assignment
 │   ├── srm_detector.py      Sample Ratio Mismatch guard rail
 │   ├── bayesian.py          Beta-Binomial posteriors, P(best), expected loss
 │   ├── sequential.py        SPRT early stopping
-│   └── multiple_testing.py  Bonferroni · Benjamini–Hochberg FDR
+│   └── multiple_testing.py  Bonferroni · Benjamini-Hochberg FDR
 ├── uplift/        Heterogeneous treatment effects (CATE)
 │   ├── x_learner.py         X-Learner meta-learner on gradient-boosted trees
 │   ├── shap_analysis.py     SHAP attributions: which features drive the effect
@@ -101,7 +101,7 @@ export DATABASE_URL="postgresql+psycopg://insightflow:insightflow@localhost:5432
 uvicorn insightflow.api.main:app --reload
 ```
 
-**The experiment lifecycle over HTTP** — create → assign → observe → read results:
+**The experiment lifecycle over HTTP.** Create → assign → observe → read results:
 
 | Method & path | Purpose |
 |---|---|
@@ -116,7 +116,7 @@ uvicorn insightflow.api.main:app --reload
 | `GET /experiments/{id}/charts` | Plotly figures (JSON) for the dashboard |
 
 **Free LLM summaries.** The narrative uses a pluggable backend, no paid API required:
-`template` (default — deterministic, no key, always works), `groq` (free Llama 3.3 70B —
+`template` (the default: deterministic, no key, always works), `groq` (free Llama 3.3 70B;
 set `INSIGHTFLOW_LLM=groq` + `GROQ_API_KEY`), or `ollama` (100% local). Any failure
 falls back to the template, so a report always gets a summary.
 
@@ -153,7 +153,7 @@ python validation/simulation_harness.py
   ALL CHECKS PASSED ✓
 ```
 
-Type I error stays at/below α and power lands on target — empirical proof, not just theory.
+Type I error stays at or below α and power lands on target. Empirical proof, not just theory.
 
 ### The whole stack in Docker
 
@@ -162,7 +162,7 @@ docker compose -f infra/docker-compose.yml up --build
 # dashboard → http://localhost:8080   ·   API docs → http://localhost:8000/docs
 ```
 
-Brings up the dashboard (nginx), the API (uvicorn), **PostgreSQL**, and **Redis** —
+Brings up the dashboard (nginx), the API (uvicorn), **PostgreSQL**, and **Redis**:
 the production-shaped setup. With Redis present, repeat result/report/chart loads are
 served from cache (watch the `X-Cache: HIT` response header) for sub-2s dashboard loads.
 
@@ -207,23 +207,22 @@ print(result.significant)    # True
 | **500-experiment validation** | `validation/simulation_harness.py` | empirical Type I error + power across the frequentist tests |
 | **Redis caching** | `api/cache.py` | data-versioned cache for results/report/charts; in-memory fallback |
 
-Every frequentist test returns a self-describing `TestResult` — estimate, effect
-size, confidence interval, and a plain-English verdict — because a p-value with no
-context is how experiments get misread. The Bayesian and sequential tests return
+Every frequentist test returns a self-describing `TestResult` carrying the estimate,
+effect size, confidence interval, and a plain-English verdict, because a p-value with
+no context is how experiments get misread. The Bayesian and sequential tests return
 their own rich result objects with built-in ship / keep-running recommendations.
 
 ---
 
 ## Roadmap
 
-- [x] **Phase 1 — Core stats:** frequentist tests, power analysis, randomization, SRM, tests
-- [x] **Phase 2 — Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
-- [x] **Phase 3 — Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
-- [x] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
-- [x] **Phase 5a — Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
-- [x] **Phase 5b — Dashboard:** refined React + Vite + Tailwind UI (list, create, simulate, results, charts, narrative, PDF)
-- [x] **Phase 6 — Validation + infra:** 500-experiment simulation harness, Redis caching, Docker (api · web · postgres · redis), GitHub Actions CI
-- [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
+- [x] **Phase 1, Core stats:** frequentist tests, power analysis, randomization, SRM, tests
+- [x] **Phase 2, Bayesian + SPRT:** Beta-Binomial posteriors, sequential testing, multiple-testing correction
+- [x] **Phase 3, Experiment service:** PostgreSQL/SQLite + FastAPI CRUD, ingestion & results API
+- [x] **Phase 4, Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
+- [x] **Phase 5a, Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
+- [x] **Phase 5b, Dashboard:** refined React + Vite + Tailwind UI (list, create, simulate, results, charts, narrative, PDF)
+- [x] **Phase 6, Validation + infra:** 500-experiment simulation harness, Redis caching, Docker (api · web · postgres · redis), GitHub Actions CI
 
 ---
 

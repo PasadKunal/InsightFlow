@@ -1,7 +1,7 @@
 """InsightFlow statistical core.
 
 The framework-independent heart of the platform: hypothesis tests, power analysis,
-randomization, and data-quality guards. No web server, no database — just numbers
+randomization, and data-quality guards. No web server, no database - just numbers
 in, trustworthy answers out. Everything here is unit-tested in isolation.
 """
 

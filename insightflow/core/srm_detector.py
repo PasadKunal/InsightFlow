@@ -1,4 +1,4 @@
-"""Sample Ratio Mismatch (SRM) detection — the experiment's smoke alarm.
+"""Sample Ratio Mismatch (SRM) detection - the experiment's smoke alarm.
 
 You designed a 50/50 split, but the data shows 5,100 vs 4,900. Is that just
 chance, or did something *break*? SRM is the #1 data-quality check at every serious
@@ -23,7 +23,7 @@ from scipy import stats
 
 
 # Deliberately strict. SRM is a "this experiment is broken" alarm, and true
-# mismatches blow past this by many orders of magnitude — so false alarms stay rare.
+# mismatches blow past this by many orders of magnitude - so false alarms stay rare.
 DEFAULT_SRM_ALPHA = 0.001
 
 
@@ -81,7 +81,7 @@ def detect_srm(
     Notes
     -----
     Raises ``ValueError`` if fewer than two arms are provided or all counts are
-    zero — there is nothing meaningful to test in those cases.
+    zero - there is nothing meaningful to test in those cases.
     """
     arms = list(observed.keys())
     if len(arms) < 2:
@@ -90,7 +90,7 @@ def detect_srm(
     observed_counts = np.array([observed[a] for a in arms], dtype=float)
     total = observed_counts.sum()
     if total == 0:
-        raise ValueError("Total observed count is zero — no data to test.")
+        raise ValueError("Total observed count is zero - no data to test.")
 
     # Resolve the expected split into normalized probabilities aligned to `arms`.
     if expected_ratio is None:

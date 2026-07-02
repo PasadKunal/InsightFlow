@@ -117,7 +117,7 @@ export default function ExperimentPage() {
           <div className="text-lg font-medium text-[#1a1a2e]">No results yet</div>
           <p className="max-w-md text-sm text-slate-500">
             This experiment hasn't collected any observations. Simulate a batch of realistic
-            traffic to see the full analysis — recommendation, charts, and a narrative summary.
+            traffic to see the full analysis - recommendation, charts, and a narrative summary.
           </p>
           {exp.required_sample_size_per_arm && (
             <p className="text-xs text-slate-400">

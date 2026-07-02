@@ -4,10 +4,10 @@ A vector of 100,000 individual treatment effects isn't actionable on its own. Wh
 growth team actually wants to hear is: *"target these people."* This module answers
 that two ways:
 
-* **By quantile** — sort users by estimated effect and bucket them (quintiles by
+* **By quantile** - sort users by estimated effect and bucket them (quintiles by
   default). The top bucket is your high-responder segment, and we report how many
-  times the overall ATE its effect is worth — the "target the top 20%" story.
-* **By known segment** — if you already have a categorical dimension (country, plan,
+  times the overall ATE its effect is worth - the "target the top 20%" story.
+* **By known segment** - if you already have a categorical dimension (country, plan,
   acquisition channel), average the estimated effect within each and rank them, so
   you can say "enterprise users respond 3x more than free users."
 """

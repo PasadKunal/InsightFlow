@@ -8,7 +8,7 @@ The answer used everywhere in the causal-ML literature: **synthetic data with a 
 effect function.** Here we generate users whose true per-user effect τ(x) we control
 exactly, fit the X-Learner as if we were blind to it, and then grade the estimates
 against the truth. The headline metric is **PEHE** (Precision in Estimation of
-Heterogeneous Effects) — the root-mean-square error between estimated and true CATE.
+Heterogeneous Effects) - the root-mean-square error between estimated and true CATE.
 Lower is better. We also report the correlation and how much true uplift you'd capture
 by targeting the model's top quintile.
 """
@@ -47,7 +47,7 @@ def make_synthetic_uplift_data(
 
         τ(x) = 1 + 2 · sigmoid(3 · x0) + 0.5 · x1
 
-    so users with a high ``x0`` respond far more strongly than the average — exactly
+    so users with a high ``x0`` respond far more strongly than the average - exactly
     the kind of structure a good CATE model should recover and a segment analysis
     should surface.
     """

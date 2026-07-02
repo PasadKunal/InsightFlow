@@ -1,8 +1,8 @@
-"""Service layer — business logic that sits between the HTTP routes and the database.
+"""Service layer - business logic that sits between the HTTP routes and the database.
 
 Routes stay thin (parse, call, return); the real work lives here. Most importantly,
 this is where stored rows get handed to the Phase 1-2 statistical engine to produce
-an analysis. The web layer never does statistics itself — it delegates to ``core``.
+an analysis. The web layer never does statistics itself - it delegates to ``core``.
 """
 
 from __future__ import annotations
@@ -215,7 +215,7 @@ def _assignment_counts(db: Session, experiment_id: str) -> dict[str, int]:
 
 
 def observation_count(db: Session, experiment_id: str) -> int:
-    """Total observations for an experiment — used to build data-versioned cache keys."""
+    """Total observations for an experiment - used to build data-versioned cache keys."""
     return int(
         db.scalar(
             select(func.count()).select_from(models.Observation).where(
@@ -240,7 +240,7 @@ def _values_by_variant(db: Session, experiment_id: str) -> dict[str, list[float]
 
 @dataclass
 class _AnalysisBundle:
-    """Raw core result objects for an experiment — shared by results, reports & charts."""
+    """Raw core result objects for an experiment - shared by results, reports & charts."""
 
     srm: object
     frequentist: list          # list of core TestResult objects (primary first)
@@ -263,7 +263,7 @@ def _run_analysis(db: Session, experiment: models.Experiment) -> _AnalysisBundle
     if n_c == 0 or n_t == 0:
         raise ValueError("Both arms need at least one observation before analysis.")
 
-    # Guardrail — is the assignment split what we designed for?
+    # Guardrail - is the assignment split what we designed for?
     counts = _assignment_counts(db, experiment.id)
     tf = experiment.treatment_fraction
     srm = detect_srm(
@@ -398,10 +398,10 @@ def _to_frequentist_out(res) -> schemas.FrequentistOut:
 def _recommend(srm_detected: bool, primary) -> str:
     """Distil the statistics into a single, human decision."""
     if srm_detected:
-        return "INVALID — Sample Ratio Mismatch detected. Fix the assignment pipeline; do not trust these results."
+        return "INVALID - Sample Ratio Mismatch detected. Fix the assignment pipeline; do not trust these results."
     if not primary.significant:
-        return "INCONCLUSIVE — no significant difference yet. Keep running or increase sample size."
+        return "INCONCLUSIVE - no significant difference yet. Keep running or increase sample size."
     # Significant: direction comes from the effect size (positive = treatment better).
     if (primary.effect_size or 0) > 0:
-        return "SHIP — treatment shows a statistically significant improvement."
-    return "DO NOT SHIP — treatment is significantly worse than control."
+        return "SHIP - treatment shows a statistically significant improvement."
+    return "DO NOT SHIP - treatment is significantly worse than control."

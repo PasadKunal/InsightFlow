@@ -1,18 +1,18 @@
-"""Natural-language experiment summaries — with a strictly free, pluggable backend.
+"""Natural-language experiment summaries - with a strictly free, pluggable backend.
 
 The goal: after an experiment finishes, produce a short paragraph a non-technical PM
-can read and act on. The design constraint here is deliberate — **no paid APIs**. So
+can read and act on. The design constraint here is deliberate - **no paid APIs**. So
 this module ships three interchangeable providers, chosen by environment variables:
 
-* **template** (default) — no LLM at all. A deterministic, rule-based paragraph built
+* **template** (default) - no LLM at all. A deterministic, rule-based paragraph built
   straight from the report's numbers. Always available, needs no key, never fails.
-* **groq** — Groq's free API (blazing-fast Llama 3.3 70B). Set ``INSIGHTFLOW_LLM=groq``
+* **groq** - Groq's free API (blazing-fast Llama 3.3 70B). Set ``INSIGHTFLOW_LLM=groq``
   and ``GROQ_API_KEY``. Uses the OpenAI-compatible endpoint over plain HTTP.
-* **ollama** — a fully local model (e.g. Llama 3.2) via the Ollama daemon. Set
+* **ollama** - a fully local model (e.g. Llama 3.2) via the Ollama daemon. Set
   ``INSIGHTFLOW_LLM=ollama``. 100% offline, zero cost, no signup.
 
 Whatever you pick, if the call errors (no key, network down, daemon off) we fall back
-to the template — a report always gets *a* summary. The narrative never blocks a
+to the template - a report always gets *a* summary. The narrative never blocks a
 decision.
 """
 
@@ -52,7 +52,7 @@ class LLMProvider(ABC):
 
 
 class TemplateProvider(LLMProvider):
-    """Rule-based narrative — no model, no key, always works."""
+    """Rule-based narrative - no model, no key, always works."""
 
     name = "template"
 

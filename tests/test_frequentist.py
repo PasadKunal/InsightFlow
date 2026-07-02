@@ -1,7 +1,7 @@
 """Tests for the frequentist hypothesis tests.
 
 Strategy: build data with a *known* answer (a real effect or a true null), then
-assert the test lands on the right verdict, sign, and effect size — and that it
+assert the test lands on the right verdict, sign, and effect size - and that it
 agrees with SciPy's own reference implementations where they overlap.
 """
 
@@ -68,7 +68,7 @@ def test_ttest_empty_input_raises():
 
 # ── proportion z-test ────────────────────────────────────────────────────────
 def test_proportion_ztest_detects_lift():
-    # 10% vs 13% on 5k users each — a clear, real lift.
+    # 10% vs 13% on 5k users each - a clear, real lift.
     res = proportion_ztest(500, 5000, 650, 5000)
     assert res.significant
     assert res.extra["rate_control"] == pytest.approx(0.10)

@@ -1,12 +1,12 @@
-"""ORM models — the persistent shape of an experiment.
+"""ORM models - the persistent shape of an experiment.
 
 Three tables, one clean story:
 
-* **Experiment** — the design: what we're testing, on which metric, at what split,
+* **Experiment** - the design: what we're testing, on which metric, at what split,
   and the pre-registered power parameters (so nobody moves the goalposts later).
-* **Assignment** — which arm each user landed in. One row per (experiment, user);
+* **Assignment** - which arm each user landed in. One row per (experiment, user);
   the unique constraint makes double-assignment impossible at the database level.
-* **Observation** — a measured metric value for a user (0/1 for conversion metrics,
+* **Observation** - a measured metric value for a user (0/1 for conversion metrics,
   a real number for continuous ones). This is the raw material every analysis reads.
 """
 
@@ -39,7 +39,7 @@ def _now() -> datetime:
 
 
 class MetricType(str, enum.Enum):
-    """What kind of metric this experiment measures — it decides which tests run."""
+    """What kind of metric this experiment measures - it decides which tests run."""
 
     PROPORTION = "proportion"    # conversion-style: each observation is 0 or 1
     CONTINUOUS = "continuous"    # revenue, session length, ... : any real number

@@ -1,6 +1,6 @@
 """Experiment design: power analysis and sample-size planning.
 
-The single most common way experiments go wrong is being *underpowered* — too
+The single most common way experiments go wrong is being *underpowered* - too
 few users to detect the effect you care about, so you ship "no significant
 difference" and never learn anything. This module answers the two questions you
 must settle **before** an experiment starts:
@@ -56,7 +56,7 @@ def sample_size_for_proportion(
         The control conversion rate you expect, e.g. 0.10 for 10%.
     minimum_detectable_effect (MDE):
         The smallest lift worth detecting. If ``relative=True`` (default) this is
-        a fraction of the baseline — 0.05 means "a 5% relative lift", i.e. 0.10 ->
+        a fraction of the baseline - 0.05 means "a 5% relative lift", i.e. 0.10 ->
         0.105. If ``relative=False`` it is an absolute change in rate.
     alpha:
         Significance level (two-sided).

@@ -29,7 +29,7 @@ def _as_array(x: ArrayLike, name: str) -> np.ndarray:
     arr = np.asarray(x, dtype=float).ravel()
     arr = arr[~np.isnan(arr)]
     if arr.size == 0:
-        raise ValueError(f"'{name}' is empty after removing NaNs — nothing to test.")
+        raise ValueError(f"'{name}' is empty after removing NaNs - nothing to test.")
     return arr
 
 
@@ -80,7 +80,7 @@ def two_sample_ttest(
     if equal_var:
         df = n_c + n_t - 2
     else:
-        # Welch–Satterthwaite degrees of freedom.
+        # Welch-Satterthwaite degrees of freedom.
         df = (var_c / n_c + var_t / n_t) ** 2 / (
             (var_c / n_c) ** 2 / (n_c - 1) + (var_t / n_t) ** 2 / (n_t - 1)
         )
@@ -126,7 +126,7 @@ def proportion_ztest(
     """Compare two conversion rates with a two-proportion z-test.
 
     This is the test for "did the treatment change the *rate* at which users do
-    X?" — click, sign up, purchase. The effect size reported is **relative lift**
+    X?" - click, sign up, purchase. The effect size reported is **relative lift**
     (the metric stakeholders actually ask about), and the confidence interval is
     on the absolute difference in rates.
     """
@@ -187,7 +187,7 @@ def chi_squared_test(
     """Independence test on a 2x2 (arm x converted?) contingency table.
 
     Mathematically equivalent to the two-proportion z-test for large samples, but
-    framed as a chi-squared test — the form many analysts expect to see, and the
+    framed as a chi-squared test - the form many analysts expect to see, and the
     one that generalizes to more than two categories. The effect size is
     **Cramér's V** (0 = no association, 1 = perfect).
     """

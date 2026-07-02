@@ -1,6 +1,6 @@
 """Plotly charts for experiment results.
 
-Each function returns a Plotly ``Figure`` — not an image, not HTML. That's deliberate:
+Each function returns a Plotly ``Figure`` - not an image, not HTML. That's deliberate:
 a Figure can be serialized to JSON and handed straight to the React dashboard (Phase
 5b), rendered to a PNG for a PDF, or shown inline in a notebook. One source of truth,
 many surfaces.
@@ -17,10 +17,10 @@ import numpy as np
 import plotly.graph_objects as go
 
 # A small, consistent palette shared across every chart.
-CONTROL_COLOR = "#94a3b8"    # slate — neutral
-TREATMENT_COLOR = "#0f3460"  # deep navy — the brand color
-ACCENT = "#2ea44f"           # green — positive / ship
-WARN = "#dc2626"             # red — regression / SRM
+CONTROL_COLOR = "#94a3b8"    # slate - neutral
+TREATMENT_COLOR = "#0f3460"  # deep navy - the brand color
+ACCENT = "#2ea44f"           # green - positive / ship
+WARN = "#dc2626"             # red - regression / SRM
 
 
 def _layout(fig: go.Figure, title: str, **kwargs) -> go.Figure:
@@ -84,7 +84,7 @@ def sprt_trace(
 ) -> go.Figure:
     """The running log-likelihood ratio against its stopping boundaries.
 
-    A picture of *why* the test stopped when it did — the line walks until it pokes
+    A picture of *why* the test stopped when it did - the line walks until it pokes
     through a boundary.
     """
     log_lr = list(log_lr)
@@ -100,7 +100,7 @@ def sprt_trace(
 def posterior_plot(
     alpha_c: float, beta_c: float, alpha_t: float, beta_t: float, *, title: str = "Posterior conversion rates"
 ) -> go.Figure:
-    """Overlaid Beta posteriors for the two arms — the Bayesian view of separation."""
+    """Overlaid Beta posteriors for the two arms - the Bayesian view of separation."""
     from scipy import stats
 
     xs = np.linspace(0, 1, 500)
@@ -118,7 +118,7 @@ def posterior_plot(
 
 def uplift_quantile_bar(quantiles: Sequence[int], mean_cate: Sequence[float], *,
                         title: str = "Treatment effect by responder quintile") -> go.Figure:
-    """Bar chart of estimated effect per responder bucket — the targeting story."""
+    """Bar chart of estimated effect per responder bucket - the targeting story."""
     fig = go.Figure(go.Bar(x=[f"Q{q}" for q in quantiles], y=list(mean_cate), marker_color=TREATMENT_COLOR))
     fig.add_hline(y=float(np.mean(mean_cate)), line_dash="dash", line_color=ACCENT, annotation_text="overall ATE")
     return _layout(fig, title, xaxis_title="responder quintile (low → high)", yaxis_title="mean CATE", showlegend=False, height=340)

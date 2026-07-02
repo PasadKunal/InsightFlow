@@ -1,4 +1,4 @@
-"""Sequential testing with the SPRT — valid early stopping.
+"""Sequential testing with the SPRT - valid early stopping.
 
 Here is the trap that ruins real experiments: you run an A/B test, glance at it on
 day 3, see ``p = 0.04``, and stop. That p-value is a **lie**. A fixed-sample t-test
@@ -8,7 +8,7 @@ you're controlling.
 
 Wald's **Sequential Probability Ratio Test (SPRT)** is the principled fix. Instead of
 a fixed sample size, you accumulate evidence one observation at a time and stop the
-*moment* the evidence is decisive — with the error rates you asked for still intact.
+*moment* the evidence is decisive - with the error rates you asked for still intact.
 
 How it works, in one breath: pick two hypotheses about the conversion rate, a null
 ``p0`` and an alternative ``p1``. After each user, update the **log-likelihood ratio**
@@ -20,7 +20,7 @@ from your target error rates, bracket the "keep going" zone:
 
 Stay between them and you collect one more observation. Because the boundaries are
 built from ``alpha`` and ``beta`` directly, stopping at *any* crossing keeps those
-error rates valid — that's the whole point.
+error rates valid - that's the whole point.
 """
 
 from __future__ import annotations
@@ -49,11 +49,11 @@ class SPRTResult:
 
     def summary(self) -> str:
         if self.decision == "reject_null":
-            verdict = f"REJECT null — treatment effect detected (stopped at n={self.stopped_at})"
+            verdict = f"REJECT null - treatment effect detected (stopped at n={self.stopped_at})"
         elif self.decision == "accept_null":
-            verdict = f"ACCEPT null — no effect (stopped at n={self.stopped_at})"
+            verdict = f"ACCEPT null - no effect (stopped at n={self.stopped_at})"
         else:
-            verdict = f"INCONCLUSIVE — still between boundaries after n={self.n_observations}"
+            verdict = f"INCONCLUSIVE - still between boundaries after n={self.n_observations}"
         return (
             f"SPRT: {verdict} | log-LR={self.log_likelihood_ratio:.3f} "
             f"in [{self.lower_boundary:.3f}, {self.upper_boundary:.3f}]"
@@ -82,7 +82,7 @@ class SequentialTest:
         if not 0 < p0 < 1 or not 0 < p1 < 1:
             raise ValueError("p0 and p1 must both be strictly between 0 and 1.")
         if p0 == p1:
-            raise ValueError("p0 and p1 must differ — there is nothing to distinguish.")
+            raise ValueError("p0 and p1 must differ - there is nothing to distinguish.")
         if not 0 < alpha < 1 or not 0 < beta < 1:
             raise ValueError("alpha and beta must be strictly between 0 and 1.")
 
@@ -146,7 +146,7 @@ def run_sprt(
 
     A convenience wrapper around :class:`SequentialTest` for when you already have
     the data in hand (e.g. replaying a log or validating on simulated streams).
-    Stops early the instant a boundary is crossed — the returned ``stopped_at``
+    Stops early the instant a boundary is crossed - the returned ``stopped_at``
     tells you how few observations that took.
     """
     test = SequentialTest(p0, p1, alpha=alpha, beta=beta)

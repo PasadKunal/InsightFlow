@@ -1,4 +1,4 @@
-# InsightFlow dashboard image — multi-stage: build the React app, serve it with nginx.
+# InsightFlow dashboard image - multi-stage: build the React app, serve it with nginx.
 #
 #   Stage 1 compiles the TypeScript/Vite bundle.
 #   Stage 2 ships only the static assets behind nginx, which also reverse-proxies

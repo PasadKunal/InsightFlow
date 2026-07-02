@@ -1,8 +1,8 @@
-"""Explaining the CATE with SHAP — *why* does this user respond?
+"""Explaining the CATE with SHAP - *why* does this user respond?
 
 A CATE model tells you a user has a high treatment effect. SHAP tells you **which of
 their features drive it**. That's the difference between "target this cohort" and
-"target this cohort *because they're new, on mobile, and price-sensitive*" — the
+"target this cohort *because they're new, on mobile, and price-sensitive*" - the
 second is what actually informs product decisions.
 
 The X-Learner blends several trees, which makes it awkward to explain directly. The

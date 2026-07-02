@@ -2,7 +2,7 @@
 
 Stakeholders live in email and Slack, not the dashboard. A one-page PDF is how an
 experiment result actually travels through an org. We build it with ReportLab (pure
-Python — no headless browser, no system libraries), so PDF generation works anywhere
+Python - no headless browser, no system libraries), so PDF generation works anywhere
 the rest of the package does, including CI.
 
 The layout mirrors the on-screen report: a colored recommendation banner up top, the
@@ -44,7 +44,7 @@ def report_to_pdf_bytes(report: ExperimentReport) -> bytes:
         buffer, pagesize=LETTER,
         topMargin=0.7 * inch, bottomMargin=0.7 * inch,
         leftMargin=0.8 * inch, rightMargin=0.8 * inch,
-        title=f"InsightFlow — {report.name}",
+        title=f"InsightFlow - {report.name}",
     )
     styles = getSampleStyleSheet()
     h1 = ParagraphStyle("h1", parent=styles["Title"], fontSize=20, textColor=_NAVY, spaceAfter=4)
@@ -54,7 +54,7 @@ def report_to_pdf_bytes(report: ExperimentReport) -> bytes:
     body = ParagraphStyle("body", parent=styles["Normal"], fontSize=10, leading=15)
 
     story = []
-    story.append(Paragraph(f"InsightFlow — {report.name}", h1))
+    story.append(Paragraph(f"InsightFlow - {report.name}", h1))
     story.append(Paragraph(
         f"Status: {report.status} &nbsp;·&nbsp; Metric: {report.metric_type} &nbsp;·&nbsp; "
         f"Generated {report.generated_at:%Y-%m-%d %H:%M UTC}", sub,

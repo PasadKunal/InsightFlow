@@ -1,4 +1,4 @@
-"""Scheduled report delivery — the "weekly digest" without heavy infrastructure.
+"""Scheduled report delivery - the "weekly digest" without heavy infrastructure.
 
 Teams want experiment reports to *arrive*, not to be fetched. A weekly digest that
 lands every Monday morning is the difference between a dashboard people forget and one
@@ -6,7 +6,7 @@ that drives decisions. We use APScheduler's in-process ``BackgroundScheduler`` r
 than Celery + a broker: at this scale a cron-like thread is all you need, and it keeps
 the deployment a single process.
 
-This is a thin, well-behaved wrapper — you hand it a callable and a cadence; it runs
+This is a thin, well-behaved wrapper - you hand it a callable and a cadence; it runs
 the callable on that cadence. What the callable *does* (build a report, render a PDF,
 email it) is left to the caller, so the scheduler stays testable and dependency-free.
 """
@@ -44,7 +44,7 @@ class ReportScheduler:
         return job_id
 
     def schedule_interval(self, func: Callable[[], None], *, job_id: str, seconds: int) -> str:
-        """Run ``func`` every ``seconds`` — handy for demos and tests."""
+        """Run ``func`` every ``seconds`` - handy for demos and tests."""
         self._scheduler.add_job(func, trigger="interval", seconds=seconds, id=job_id, replace_existing=True)
         return job_id
 

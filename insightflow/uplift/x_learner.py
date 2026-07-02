@@ -1,7 +1,7 @@
-"""The X-Learner — estimating *who* responds to treatment, not just the average.
+"""The X-Learner - estimating *who* responds to treatment, not just the average.
 
 A normal A/B test gives you one number: the Average Treatment Effect (ATE). "The new
-checkout lifts conversion by 2%." But that 2% is an average over everyone — and it
+checkout lifts conversion by 2%." But that 2% is an average over everyone - and it
 almost always hides a richer story: maybe new users get +8% and power users get -1%.
 The **Conditional** Average Treatment Effect (CATE) is that per-user story: τ(x) = the
 expected lift for a user with features x. Knowing it lets you roll out to the people
@@ -11,11 +11,11 @@ The **X-Learner** (Künzel et al., 2019) is a meta-learner that estimates CATE w
 even when treatment and control groups are unbalanced. It works in four moves:
 
 1. **Outcome models.** Fit μ₀(x) on the control group and μ₁(x) on the treated group
-   — two separate models of "what outcome do we expect here?".
+   - two separate models of "what outcome do we expect here?".
 2. **Impute individual effects.** For each treated user, ``Y − μ₀(x)`` estimates the
    effect they personally got. For each control user, ``μ₁(x) − Y`` does the same.
 3. **CATE models.** Fit τ₁(x) on the treated imputations and τ₀(x) on the control
-   ones — two direct models of the effect itself.
+   ones - two direct models of the effect itself.
 4. **Blend by propensity.** Combine them as ``τ(x) = e(x)·τ₀(x) + (1−e(x))·τ₁(x)``,
    where e(x) is the propensity score. This leans on whichever group is better
    represented at x, which is exactly why the X-Learner shines on imbalanced data.
@@ -110,19 +110,19 @@ class XLearner:
 
         self.feature_names_ = names
 
-        # Stage 1 — outcome models, one per arm.
+        # Stage 1 - outcome models, one per arm.
         self.mu0_ = self._make_regressor().fit(Xm[control], y[control])
         self.mu1_ = self._make_regressor().fit(Xm[treated], y[treated])
 
-        # Stage 2 — impute the individual treatment effect for every user.
+        # Stage 2 - impute the individual treatment effect for every user.
         imputed_treated = y[treated] - self.mu0_.predict(Xm[treated])
         imputed_control = self.mu1_.predict(Xm[control]) - y[control]
 
-        # Stage 3 — model the effect directly within each arm.
+        # Stage 3 - model the effect directly within each arm.
         self.tau1_ = self._make_regressor().fit(Xm[treated], imputed_treated)
         self.tau0_ = self._make_regressor().fit(Xm[control], imputed_control)
 
-        # Stage 4 — propensity model e(x) = P(treated | x) for the final blend.
+        # Stage 4 - propensity model e(x) = P(treated | x) for the final blend.
         self.propensity_ = self._make_classifier().fit(Xm, w)
 
         self._fitted = True

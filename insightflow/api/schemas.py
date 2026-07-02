@@ -1,4 +1,4 @@
-"""Pydantic schemas — the validated request/response contracts.
+"""Pydantic schemas - the validated request/response contracts.
 
 Keeping these separate from the ORM models is deliberate: the database shape and the
 API shape are allowed to differ, and FastAPI turns these classes into the interactive
@@ -23,7 +23,7 @@ class ExperimentCreate(BaseModel):
     metric_type: MetricType = MetricType.PROPORTION
     treatment_fraction: float = Field(0.5, gt=0, lt=1)
 
-    # Optional design parameters — if given for a proportion metric, we auto-compute
+    # Optional design parameters - if given for a proportion metric, we auto-compute
     # the required sample size via a power analysis.
     baseline_rate: float | None = Field(None, gt=0, lt=1, examples=[0.10])
     minimum_detectable_effect: float | None = Field(

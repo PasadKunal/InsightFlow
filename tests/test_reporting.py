@@ -89,14 +89,14 @@ def test_default_provider_is_template():
 
 def test_template_insight_mentions_key_facts():
     report = _shipping_report()
-    text = generate_insight(report)  # defaults to template — no network, no key
+    text = generate_insight(report)  # defaults to template - no network, no key
     assert report.narrative == text
     assert len(text) > 40
     assert "ship" in text.lower()
 
 
 def test_insight_falls_back_when_provider_fails():
-    # A Groq provider with no key must not raise — it falls back to the template.
+    # A Groq provider with no key must not raise - it falls back to the template.
     from insightflow.reporting.insight_generator import GroqProvider
 
     report = _shipping_report()

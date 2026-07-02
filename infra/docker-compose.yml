@@ -5,7 +5,7 @@
 # Then open http://localhost:8080 for the dashboard. The API is proxied through it at
 # /api, and also exposed directly on http://localhost:8000/docs.
 #
-# (For pure Python dev you don't need any of this — the API defaults to SQLite and an
+# (For pure Python dev you don't need any of this - the API defaults to SQLite and an
 #  in-memory cache. This compose file is the production-shaped setup.)
 
 services:

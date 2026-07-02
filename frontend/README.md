@@ -1,6 +1,6 @@
 # InsightFlow Dashboard
 
-The web UI for InsightFlow — a refined, light-themed React dashboard for designing
+The web UI for InsightFlow - a refined, light-themed React dashboard for designing
 experiments, simulating traffic, and reading out results with charts, a
 ship/hold recommendation, and a plain-English summary.
 
@@ -38,7 +38,7 @@ npm run preview        # serve the production build on http://localhost:4173
 ```
 src/
 ├── api/client.ts        typed API client (mirrors the FastAPI schemas)
-├── hooks.ts             useAsync — tiny data-fetching hook with reload
+├── hooks.ts             useAsync - tiny data-fetching hook with reload
 ├── components/
 │   ├── Layout.tsx       app shell (header + backdrop)
 │   ├── ui.tsx           Card, StatusBadge, StatCard, Button, formatters

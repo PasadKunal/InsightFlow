@@ -1,7 +1,7 @@
 """Application configuration (12-factor: everything comes from the environment).
 
 The one setting that matters most here is ``DATABASE_URL``. It defaults to a local
-SQLite file so you can ``git clone`` and run the API with zero setup — no database
+SQLite file so you can ``git clone`` and run the API with zero setup - no database
 to install, no Docker to boot. In production (or whenever you want the real thing),
 point it at PostgreSQL:
 
@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Load a local .env into the process environment as early as possible. This makes a
-# single .env file the source of truth for *everything* — both the pydantic Settings
+# single .env file the source of truth for *everything* - both the pydantic Settings
 # below and the plain os.environ reads elsewhere (REDIS_URL in the cache, the LLM
 # provider vars in reporting). No-op if there's no .env file, so tests are unaffected.
 load_dotenv()
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     app_name: str = "InsightFlow"
     app_version: str = "0.3.0"
 
-    # Echo SQL to the console — handy when debugging queries, noisy otherwise.
+    # Echo SQL to the console - handy when debugging queries, noisy otherwise.
     sql_echo: bool = False
 
 

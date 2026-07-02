@@ -1,4 +1,4 @@
-"""A tiny caching layer for expensive read endpoints — Redis, with a safe fallback.
+"""A tiny caching layer for expensive read endpoints - Redis, with a safe fallback.
 
 The dashboard hits ``/results``, ``/report``, and ``/charts`` on every view, and each
 one re-runs the full statistical analysis. That's wasteful when the underlying data
@@ -8,11 +8,11 @@ asks for: the second view is a cache read (~1ms) instead of a recompute.
 Two design choices keep this robust:
 
 * **Graceful degradation.** If ``REDIS_URL`` is unset or Redis is unreachable, we fall
-  back to a process-local dict. The app never fails because a cache is missing — it
+  back to a process-local dict. The app never fails because a cache is missing - it
   just loses the speed-up. Tests and `git clone && run` work with zero infrastructure.
 
 * **Data-versioned keys.** Cache keys embed the experiment's observation count, so the
-  moment new data arrives the key changes and the stale entry is naturally bypassed —
+  moment new data arrives the key changes and the stale entry is naturally bypassed -
   no explicit invalidation logic to get wrong. Old entries expire via TTL.
 """
 

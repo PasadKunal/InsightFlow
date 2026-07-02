@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Backend — tests
+    name: Backend - tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
         run: python validation/simulation_harness.py
 
   frontend:
-    name: Frontend — build
+    name: Frontend - build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -53,7 +53,7 @@ jobs:
         run: npm run build
 
   docker:
-    name: Docker — build images
+    name: Docker - build images
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

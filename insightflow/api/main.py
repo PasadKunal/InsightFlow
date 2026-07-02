@@ -169,7 +169,7 @@ def observe(experiment_id: str, payload: schemas.ObserveRequest, db: Session = D
 def observe_bulk(
     experiment_id: str, payload: schemas.BulkObserveRequest, db: Session = Depends(get_db)
 ):
-    """Ingest many observations at once — handy for seeding and demos."""
+    """Ingest many observations at once - handy for seeding and demos."""
     experiment = _require_experiment(experiment_id, db)
     return service.bulk_record(db, experiment, payload.observations)
 

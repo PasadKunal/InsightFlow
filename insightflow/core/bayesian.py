@@ -2,20 +2,20 @@
 
 Frequentist tests answer "if there were no effect, how surprising is this data?"
 Bayesian tests answer the question people *actually* ask: **"what is the probability
-that treatment is better?"** — a statement you can hand to a non-technical PM without
+that treatment is better?"** - a statement you can hand to a non-technical PM without
 a p-value footnote.
 
 For conversion-rate experiments the math is exceptionally clean. If we start with a
 ``Beta(alpha, beta)`` prior belief about a rate and then observe ``k`` conversions in
 ``n`` users, the posterior is simply ``Beta(alpha + k, beta + n - k)``. (Beta is the
-*conjugate* prior for the binomial — the update is pure arithmetic, no sampling
+*conjugate* prior for the binomial - the update is pure arithmetic, no sampling
 needed for the posterior itself.)
 
 From those two posteriors we compute, by Monte-Carlo sampling:
 
-* **P(treatment is best)** — the headline number.
-* **Expected uplift** — how much better, on average.
-* **Expected loss** — the risk you take by shipping treatment if you're wrong. This
+* **P(treatment is best)** - the headline number.
+* **Expected uplift** - how much better, on average.
+* **Expected loss** - the risk you take by shipping treatment if you're wrong. This
   is the quantity mature teams actually threshold on ("ship when expected loss <
   0.1% of the metric").
 """
@@ -108,7 +108,7 @@ def beta_binomial_test(
         Successes and totals for each arm.
     prior_alpha, prior_beta:
         The Beta prior, shared by both arms. The default ``Beta(1, 1)`` is the
-        uniform "I know nothing" prior — every rate in [0, 1] equally likely.
+        uniform "I know nothing" prior - every rate in [0, 1] equally likely.
     credibility:
         Width of the reported credible intervals (0.95 = 95%).
     samples:

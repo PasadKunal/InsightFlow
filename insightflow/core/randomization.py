@@ -1,4 +1,4 @@
-"""Assigning users to experiment arms — correctly.
+"""Assigning users to experiment arms - correctly.
 
 Randomization sounds trivial ("flip a coin") but it is where a lot of real
 experiments quietly break. Two things matter:
@@ -52,7 +52,7 @@ def assign(
         Stable identifier for the user (anything ``str()``-able).
     experiment_id:
         Salts the hash so the *same* user gets an *independent* assignment in each
-        experiment — no accidental correlation between concurrent tests.
+        experiment - no accidental correlation between concurrent tests.
     treatment_fraction:
         Share of users sent to treatment, e.g. 0.5 for a 50/50 split.
     """
@@ -106,7 +106,7 @@ def stratified_assign(
     "web"). Within every stratum we still hash-assign each user deterministically,
     but we *nudge* the per-stratum split toward the target fraction so no subgroup
     ends up lopsided. The result is lower variance in your treatment-effect
-    estimate — you have controlled for the covariate by construction.
+    estimate - you have controlled for the covariate by construction.
 
     Parameters
     ----------

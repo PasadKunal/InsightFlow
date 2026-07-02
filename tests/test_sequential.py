@@ -1,7 +1,7 @@
 """Tests for the SPRT sequential test.
 
 The two properties that matter: (1) it makes the *right* call when there's a real
-effect vs. a true null, and (2) it stops *early* — the entire reason to use it.
+effect vs. a true null, and (2) it stops *early* - the entire reason to use it.
 """
 
 import numpy as np

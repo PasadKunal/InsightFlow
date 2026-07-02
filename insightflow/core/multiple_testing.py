@@ -1,15 +1,15 @@
-"""Multiple-testing correction — because twenty metrics is twenty chances to be fooled.
+"""Multiple-testing correction - because twenty metrics is twenty chances to be fooled.
 
 Run one test at ``alpha = 0.05`` and there's a 5% chance of a false positive. Run
 *twenty* independent tests and the chance that **at least one** lies to you jumps to
-64%. Every real experiment tracks many metrics — revenue, retention, clicks, latency,
-a dozen guardrails — so this problem is not academic. It's the difference between
+64%. Every real experiment tracks many metrics - revenue, retention, clicks, latency,
+a dozen guardrails - so this problem is not academic. It's the difference between
 "treatment moved metric #14!" being a discovery and being noise.
 
 InsightFlow offers the two standard corrections, which trade off differently:
 
 * **Bonferroni** controls the *family-wise error rate* (FWER): the chance of **any**
-  false positive at all. Dead simple, very strict — divide alpha by the number of
+  false positive at all. Dead simple, very strict - divide alpha by the number of
   tests. Right for safety-critical guardrails where one false alarm is unacceptable.
 
 * **Benjamini-Hochberg (BH)** controls the *false discovery rate* (FDR): the expected

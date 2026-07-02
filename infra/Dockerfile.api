@@ -2,7 +2,7 @@
 #
 # Installs the package with the [api,reporting] extras (FastAPI + persistence + the
 # reporting/PDF/chart layer) but *not* the heavy uplift ML stack, which the served
-# endpoints don't need — keeping the image lean. Build from the repo root:
+# endpoints don't need - keeping the image lean. Build from the repo root:
 #
 #     docker build -f infra/Dockerfile.api -t insightflow-api .
 

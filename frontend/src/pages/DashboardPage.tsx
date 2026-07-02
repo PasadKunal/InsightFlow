@@ -31,7 +31,7 @@ export default function DashboardPage() {
             <div className="text-4xl">🧪</div>
             <div className="text-lg font-medium text-[#1a1a2e]">No experiments yet</div>
             <p className="max-w-sm text-sm text-slate-500">
-              Create your first experiment — you'll get an automatic power analysis and a
+              Create your first experiment - you'll get an automatic power analysis and a
               one-click way to simulate results.
             </p>
             <Button onClick={() => setCreating(true)} className="mt-2">

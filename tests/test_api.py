@@ -2,7 +2,7 @@
 
 Each test runs against a fresh in-memory SQLite database, wired in by overriding the
 ``get_db`` dependency. That keeps the tests fast, isolated, and free of any external
-database — while still exercising the *real* ASGI app, routes, ORM, and statistics.
+database - while still exercising the *real* ASGI app, routes, ORM, and statistics.
 """
 
 import numpy as np

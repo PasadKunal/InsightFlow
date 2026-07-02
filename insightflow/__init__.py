@@ -1,4 +1,4 @@
-"""InsightFlow — production-grade A/B testing & statistical experimentation platform.
+"""InsightFlow - production-grade A/B testing & statistical experimentation platform.
 
 Public sub-packages:
     core        Statistical engine (tests, power, randomization, SRM).

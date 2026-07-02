@@ -4,7 +4,7 @@ import { Button } from "./ui";
 
 // A focused modal for designing a new experiment. For proportion metrics the
 // baseline + minimum-detectable-effect fields feed the backend's power analysis,
-// which returns the required sample size — surfaced back on the experiment page.
+// which returns the required sample size - surfaced back on the experiment page.
 export function CreateExperiment({
   onClose,
   onCreated,

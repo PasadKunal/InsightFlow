@@ -9,7 +9,7 @@ interface AsyncState<T> {
 
 /**
  * Run an async function on mount (and whenever `deps` change), tracking
- * loading/error state. Returns a `reload` to re-run on demand — used after
+ * loading/error state. Returns a `reload` to re-run on demand - used after
  * mutations like "simulate" or a status change.
  */
 export function useAsync<T>(fn: () => Promise<T>, deps: unknown[] = []): AsyncState<T> {

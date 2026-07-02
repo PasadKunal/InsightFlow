@@ -1,9 +1,9 @@
-"""Simulation-based validation — proving the statistical engine is *correct*.
+"""Simulation-based validation - proving the statistical engine is *correct*.
 
 Anyone can call `scipy.stats.ttest_ind`. The hard, senior-level question is: **how do
 you know your experimentation engine actually controls error the way it claims?** A
-p-value threshold of 0.05 is a promise — "at most 5% of true nulls will be called
-significant" — and an 80%-power design is another — "at least 80% of real effects will
+p-value threshold of 0.05 is a promise - "at most 5% of true nulls will be called
+significant" - and an 80%-power design is another - "at least 80% of real effects will
 be caught." This module *measures* whether those promises hold, empirically.
 
 The method is the gold standard for validating experimentation infrastructure:
@@ -74,7 +74,7 @@ class ValidationReport:
 
     def summary(self) -> str:
         header = "═" * 74
-        lines = [header, "  InsightFlow — Statistical Engine Validation", header]
+        lines = [header, "  InsightFlow - Statistical Engine Validation", header]
         lines += [f"  {r.summary()}" for r in self.results]
         lines.append(header)
         verdict = "ALL CHECKS PASSED ✓" if self.all_passed else "SOME CHECKS FAILED ✗"

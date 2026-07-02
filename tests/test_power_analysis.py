@@ -1,8 +1,8 @@
 """Tests for power analysis and sample-size planning.
 
 Two kinds of checks:
-  1. Internal consistency — sample_size and power are inverses of each other.
-  2. Empirical validation — if we simulate experiments at the computed sample
+  1. Internal consistency - sample_size and power are inverses of each other.
+  2. Empirical validation - if we simulate experiments at the computed sample
      size, the fraction that come back significant really does hit ~80% power.
 """
 
@@ -78,5 +78,5 @@ def test_empirical_power_matches_design(target_power):
             significant += 1
 
     empirical_power = significant / trials
-    # Monte-Carlo noise over 400 trials — allow a reasonable band around target.
+    # Monte-Carlo noise over 400 trials - allow a reasonable band around target.
     assert empirical_power == pytest.approx(target_power, abs=0.06)
