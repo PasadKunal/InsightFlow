@@ -5,11 +5,19 @@
 </p>
 
 <p align="center">
+  <a href="https://insight-flow-fawn-three.vercel.app"><img alt="Live demo" src="https://img.shields.io/badge/demo-live-2ea44f"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
   <img alt="CI" src="https://github.com/PasadKunal/InsightFlow/actions/workflows/ci.yml/badge.svg">
   <img alt="Tests" src="https://img.shields.io/badge/tests-107%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
-  <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
+</p>
+
+<p align="center">
+  <strong><a href="https://insight-flow-fawn-three.vercel.app">▶ Live demo</a></strong>
+  &nbsp;·&nbsp; <a href="https://insightflow-z9u2.onrender.com/docs">API docs</a>
+  &nbsp;·&nbsp; <a href="DEPLOY.md">Deploy guide</a>
+  <br>
+  <sub>Hosted free on Vercel + Render + Neon. The first request may take ~40s to wake the API from sleep.</sub>
 </p>
 
 ---
@@ -157,9 +165,14 @@ Type I error stays at or below α and power lands on target. Empirical proof, no
 
 ### Deploying it live (free)
 
-Host the dashboard on Vercel and the API on Render with a free Postgres database.
-Step-by-step instructions are in **[DEPLOY.md](DEPLOY.md)** (`render.yaml` and
-`frontend/vercel.json` are already set up).
+A live instance is already running:
+
+- **Dashboard:** https://insight-flow-fawn-three.vercel.app
+- **API + docs:** https://insightflow-z9u2.onrender.com/docs
+
+The whole stack is hosted on free tiers, **Vercel** (dashboard) + **Render** (API) +
+**Neon** (Postgres). To stand up your own, follow **[DEPLOY.md](DEPLOY.md)**;
+`render.yaml` and `frontend/vercel.json` are already wired up.
 
 ### The whole stack in Docker
 
@@ -229,6 +242,7 @@ their own rich result objects with built-in ship / keep-running recommendations.
 - [x] **Phase 5a, Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
 - [x] **Phase 5b, Dashboard:** refined React + Vite + Tailwind UI (list, create, simulate, results, charts, narrative, PDF)
 - [x] **Phase 6, Validation + infra:** 500-experiment simulation harness, Redis caching, Docker (api · web · postgres · redis), GitHub Actions CI
+- [x] **Deployed live:** Vercel (dashboard) + Render (API) + Neon (Postgres), all free tier
 
 ---
 
