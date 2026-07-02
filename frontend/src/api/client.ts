@@ -4,7 +4,10 @@
 // backend on :8000 (see vite.config.ts). One place owns the fetch plumbing so the
 // components stay declarative.
 
-const BASE = "/api";
+// In dev, requests hit "/api" and Vite proxies them to the backend on :8000.
+// In production (e.g. Vercel), set VITE_API_URL to the deployed API's base URL
+// (no trailing slash), so the browser calls the backend directly.
+const BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 export type MetricType = "proportion" | "continuous";
 export type Status = "draft" | "running" | "stopped" | "completed";

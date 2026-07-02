@@ -155,6 +155,12 @@ python validation/simulation_harness.py
 
 Type I error stays at or below α and power lands on target. Empirical proof, not just theory.
 
+### Deploying it live (free)
+
+Host the dashboard on Vercel and the API on Render with a free Postgres database.
+Step-by-step instructions are in **[DEPLOY.md](DEPLOY.md)** (`render.yaml` and
+`frontend/vercel.json` are already set up).
+
 ### The whole stack in Docker
 
 ```bash

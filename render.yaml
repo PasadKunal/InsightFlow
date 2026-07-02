@@ -1,0 +1,28 @@
+# Render Blueprint for the InsightFlow API.
+#
+# In Render: New > Blueprint, connect this repo, and Render reads this file.
+# You'll be asked for the one secret it needs: DATABASE_URL (your free Postgres URL).
+#
+# The dashboard is hosted separately on Vercel (see frontend/vercel.json and DEPLOY.md)
+# and points at this service via its VITE_API_URL.
+
+services:
+  - type: web
+    name: insightflow-api
+    runtime: docker
+    dockerfilePath: ./infra/Dockerfile.api
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Paste your Neon/Supabase URL in the Render dashboard. IMPORTANT: use the
+      # "postgresql+psycopg://" scheme (not plain "postgresql://") so SQLAlchemy uses
+      # the psycopg v3 driver this project ships with. Keep any "?sslmode=require".
+      - key: DATABASE_URL
+        sync: false
+      # Optional: a Redis URL (e.g. free Upstash) enables caching. Leave unset to use
+      # the built-in in-memory fallback.
+      - key: REDIS_URL
+        sync: false
+      - key: PYTHONUNBUFFERED
+        value: "1"

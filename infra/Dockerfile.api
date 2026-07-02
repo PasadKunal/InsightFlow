@@ -21,5 +21,6 @@ RUN pip install --upgrade pip && pip install ".[api,reporting]"
 
 EXPOSE 8000
 
-# Uvicorn on 0.0.0.0 so the container is reachable from outside.
-CMD ["uvicorn", "insightflow.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Bind 0.0.0.0 so the container is reachable from outside. Use $PORT when the host
+# provides one (Render, Railway, ...) and fall back to 8000 for local/compose runs.
+CMD ["sh", "-c", "uvicorn insightflow.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
