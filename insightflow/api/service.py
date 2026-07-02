@@ -214,6 +214,18 @@ def _assignment_counts(db: Session, experiment_id: str) -> dict[str, int]:
     return counts
 
 
+def observation_count(db: Session, experiment_id: str) -> int:
+    """Total observations for an experiment — used to build data-versioned cache keys."""
+    return int(
+        db.scalar(
+            select(func.count()).select_from(models.Observation).where(
+                models.Observation.experiment_id == experiment_id
+            )
+        )
+        or 0
+    )
+
+
 def _values_by_variant(db: Session, experiment_id: str) -> dict[str, list[float]]:
     rows = db.execute(
         select(models.Observation.variant, models.Observation.value).where(

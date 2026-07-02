@@ -6,7 +6,8 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-99%20passing-2ea44f">
+  <img alt="CI" src="https://github.com/PasadKunal/InsightFlow/actions/workflows/ci.yml/badge.svg">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-107%20passing-2ea44f">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-orange">
 </p>
@@ -58,7 +59,8 @@ insightflow/
 │   ├── service.py           bridges stored rows -> the core engine
 │   └── main.py              FastAPI routes (Swagger docs at /docs)
 ├── frontend/      React + Vite + Tailwind dashboard (list · results · charts · PDF)
-├── validation/    500-experiment simulation harness            (Phase 6)
+├── validation/    500-experiment simulation harness (empirical Type I error + power)
+├── infra/         Dockerfiles · compose (api · web · postgres · redis) · nginx
 └── tests/         Unit + property tests for every stat function
 ```
 
@@ -79,7 +81,7 @@ source ifvenv/bin/activate          # Windows: ifvenv\Scripts\activate
 pip install -e ".[dev]"
 
 python examples/quickstart.py        # runs a full experiment end-to-end
-pytest                               # 82 tests, incl. empirical power validation
+pytest                               # 107 tests, incl. empirical power validation
 ```
 
 Want the ML layer too? `pip install -e ".[uplift]" && python examples/uplift_demo.py`
@@ -134,6 +136,36 @@ npm run dev                                   # dashboard on http://localhost:51
 
 Create an experiment → click **Simulate data** → watch the full analysis appear.
 
+### Is the engine actually correct? (validation)
+
+Rather than trust the math, InsightFlow *measures* it. The harness runs hundreds of
+simulated experiments and checks that the empirical error rates match the promises:
+
+```bash
+python validation/simulation_harness.py
+```
+
+```
+  [PASS] Two-proportion z-test    Type I error   target=0.05  empirical=0.046   (n=500)
+  [PASS] Two-proportion z-test    Power          target=0.80  empirical=0.808   (n=500)
+  [PASS] Welch's t-test           Type I error   target=0.05  empirical=0.060   (n=500)
+  [PASS] Welch's t-test           Power          target=0.80  empirical=0.832   (n=500)
+  ALL CHECKS PASSED ✓
+```
+
+Type I error stays at/below α and power lands on target — empirical proof, not just theory.
+
+### The whole stack in Docker
+
+```bash
+docker compose -f infra/docker-compose.yml up --build
+# dashboard → http://localhost:8080   ·   API docs → http://localhost:8000/docs
+```
+
+Brings up the dashboard (nginx), the API (uvicorn), **PostgreSQL**, and **Redis** —
+the production-shaped setup. With Redis present, repeat result/report/chart loads are
+served from cache (watch the `X-Cache: HIT` response header) for sub-2s dashboard loads.
+
 ### A 20-second taste
 
 ```python
@@ -154,7 +186,7 @@ print(result.significant)    # True
 
 ---
 
-## What's implemented (Phases 1–2 ✅)
+## What's implemented
 
 | Capability | Module | Notes |
 |---|---|---|
@@ -172,6 +204,8 @@ print(result.significant)    # True
 | **SHAP effect attribution** | `uplift/shap_analysis.py` | which features drive the treatment response |
 | **Segment ranking** | `uplift/segment_analyzer.py` | responder quintiles + known-segment ranking for targeting |
 | **Synthetic validation** | `uplift/synthetic_validator.py` | PEHE + correlation vs. known ground-truth effects |
+| **500-experiment validation** | `validation/simulation_harness.py` | empirical Type I error + power across the frequentist tests |
+| **Redis caching** | `api/cache.py` | data-versioned cache for results/report/charts; in-memory fallback |
 
 Every frequentist test returns a self-describing `TestResult` — estimate, effect
 size, confidence interval, and a plain-English verdict — because a p-value with no
@@ -188,6 +222,7 @@ their own rich result objects with built-in ship / keep-running recommendations.
 - [x] **Phase 4 — Uplift modeling:** X-Learner + SHAP CATE, segment ranking, synthetic validation
 - [x] **Phase 5a — Reporting engine:** ship/hold reports, free LLM summaries, Plotly charts, PDF export, scheduler + report/PDF/chart API endpoints
 - [x] **Phase 5b — Dashboard:** refined React + Vite + Tailwind UI (list, create, simulate, results, charts, narrative, PDF)
+- [x] **Phase 6 — Validation + infra:** 500-experiment simulation harness, Redis caching, Docker (api · web · postgres · redis), GitHub Actions CI
 - [ ] **Phase 6 — Validation + infra:** 500-experiment simulation, Redis, Docker, GitHub Actions CI
 
 ---

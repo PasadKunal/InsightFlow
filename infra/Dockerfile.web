@@ -1,0 +1,21 @@
+# InsightFlow dashboard image — multi-stage: build the React app, serve it with nginx.
+#
+#   Stage 1 compiles the TypeScript/Vite bundle.
+#   Stage 2 ships only the static assets behind nginx, which also reverse-proxies
+#   /api/* to the API container (see infra/nginx.conf).
+#
+# Build from the repo root:
+#     docker build -f infra/Dockerfile.web -t insightflow-web .
+
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+FROM nginx:alpine
+COPY infra/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -26,6 +26,7 @@ api = [
     "pydantic>=2.6",
     "pydantic-settings>=2.1",
     "psycopg[binary]>=3.1",       # PostgreSQL driver (SQLite needs no driver)
+    "redis>=5.0",                 # optional cache backend; falls back to in-memory
     "python-dotenv>=1.0",
 ]
 # The uplift / CATE modeling layer (Phase 4). Install with:  pip install -e ".[uplift]"

@@ -1,0 +1,25 @@
+# InsightFlow API image.
+#
+# Installs the package with the [api,reporting] extras (FastAPI + persistence + the
+# reporting/PDF/chart layer) but *not* the heavy uplift ML stack, which the served
+# endpoints don't need — keeping the image lean. Build from the repo root:
+#
+#     docker build -f infra/Dockerfile.api -t insightflow-api .
+
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install dependencies first (better layer caching), then the source.
+COPY pyproject.toml README.md ./
+COPY insightflow ./insightflow
+RUN pip install --upgrade pip && pip install ".[api,reporting]"
+
+EXPOSE 8000
+
+# Uvicorn on 0.0.0.0 so the container is reachable from outside.
+CMD ["uvicorn", "insightflow.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

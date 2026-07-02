@@ -1,0 +1,24 @@
+# Keep build contexts small and reproducible.
+ifvenv/
+.venv/
+venv/
+**/__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+.git/
+.github/
+*.db
+*.sqlite3
+.env
+*.docx
+_docx_extract/
+reports/
+validation/results/

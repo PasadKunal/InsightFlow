@@ -210,3 +210,30 @@ def test_charts_endpoint_returns_plotly_json(client):
     assert "posteriors" in charts
     # A Plotly figure serializes to an object with "data" and "layout".
     assert "data" in charts["conversion_rate"]
+
+
+def test_results_are_cached(client):
+    exp = _seed_winning_experiment(client)
+    # First read computes (MISS); the second identical read is served from cache (HIT).
+    first = client.get(f"/experiments/{exp['id']}/results")
+    second = client.get(f"/experiments/{exp['id']}/results")
+    assert first.headers["X-Cache"] == "MISS"
+    assert second.headers["X-Cache"] == "HIT"
+    assert first.json() == second.json()
+
+
+def test_cache_invalidates_on_new_data(client):
+    exp = _seed_winning_experiment(client)
+    client.get(f"/experiments/{exp['id']}/results")  # warm the cache
+    # New observations change the observation count -> a new cache key -> a fresh MISS.
+    client.post(
+        f"/experiments/{exp['id']}/observe/bulk",
+        json={"observations": [{"user_id": "extra-1", "value": 1.0}]},
+    )
+    refreshed = client.get(f"/experiments/{exp['id']}/results")
+    assert refreshed.headers["X-Cache"] == "MISS"
+
+
+def test_health_reports_cache_backend(client):
+    body = client.get("/health").json()
+    assert body["cache"] in {"redis", "memory"}
