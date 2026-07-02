@@ -134,28 +134,43 @@ def record_observation(
 def bulk_record(
     db: Session, experiment: models.Experiment, items: list[schemas.ObserveRequest]
 ) -> schemas.IngestSummary:
-    """Efficiently ingest many observations (used for seeding and demos)."""
+    """Efficiently ingest many observations (used for seeding and demos).
+
+    Built for scale over a network database: instead of one existence-check query per
+    user (thousands of round-trips), we fetch all existing assignments for the
+    experiment in a single query, then batch-insert the new assignments and every
+    observation with ``add_all``. That turns O(N) round-trips into a small constant.
+    """
+    # One query for every user already assigned to this experiment.
+    existing = set(
+        db.scalars(
+            select(models.Assignment.user_id).where(
+                models.Assignment.experiment_id == experiment.id
+            )
+        ).all()
+    )
+
+    new_assignments: list[models.Assignment] = []
+    observations: list[models.Observation] = []
+    seen: set[str] = set()
     control = treatment = 0
+
     for item in items:
         variant = deterministic_assign(
             item.user_id,
             experiment_id=experiment.id,
             treatment_fraction=experiment.treatment_fraction,
         )
-        # Ensure an assignment row exists (ignore if already there).
-        exists = db.scalar(
-            select(models.Assignment.id).where(
-                models.Assignment.experiment_id == experiment.id,
-                models.Assignment.user_id == item.user_id,
-            )
-        )
-        if exists is None:
-            db.add(
+        # Create an assignment only for users we haven't seen before (in the DB or
+        # earlier in this same batch), so the unique constraint is never violated.
+        if item.user_id not in existing and item.user_id not in seen:
+            new_assignments.append(
                 models.Assignment(
                     experiment_id=experiment.id, user_id=item.user_id, variant=variant
                 )
             )
-        db.add(
+            seen.add(item.user_id)
+        observations.append(
             models.Observation(
                 experiment_id=experiment.id,
                 user_id=item.user_id,
@@ -167,6 +182,9 @@ def bulk_record(
             treatment += 1
         else:
             control += 1
+
+    db.add_all(new_assignments)
+    db.add_all(observations)
     db.commit()
     return schemas.IngestSummary(ingested=len(items), control=control, treatment=treatment)
 

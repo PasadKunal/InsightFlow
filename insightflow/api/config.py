@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # API metadata surfaced in the auto-generated docs.
     app_name: str = "InsightFlow"
-    app_version: str = "0.3.0"
+    app_version: str = "0.6.0"
 
     # Echo SQL to the console - handy when debugging queries, noisy otherwise.
     sql_echo: bool = False
