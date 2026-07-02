@@ -78,11 +78,20 @@ def root():
 
 @app.get("/health", tags=["meta"])
 def health():
+    # Report which optional backends are active, so a .env change is easy to verify.
+    try:
+        from insightflow.reporting import get_provider
+
+        llm = get_provider().name
+    except Exception:
+        llm = "unavailable"
     return {
         "status": "ok",
         "app": settings.app_name,
         "version": settings.app_version,
+        "database": "postgres" if settings.database_url.startswith("postgre") else "sqlite",
         "cache": cache.backend,
+        "llm": llm,
     }
 
 

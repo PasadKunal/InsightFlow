@@ -12,7 +12,14 @@ SQLAlchemy speaks both dialects, so nothing else in the codebase changes.
 
 from __future__ import annotations
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Load a local .env into the process environment as early as possible. This makes a
+# single .env file the source of truth for *everything* — both the pydantic Settings
+# below and the plain os.environ reads elsewhere (REDIS_URL in the cache, the LLM
+# provider vars in reporting). No-op if there's no .env file, so tests are unaffected.
+load_dotenv()
 
 
 class Settings(BaseSettings):
